@@ -10,6 +10,6 @@ import com.theblind.todo.Entity.Task;
 
 @Repository
 public interface TaskRepo extends JpaRepository<Task, UUID> {
-    List<Task> findByUserId(Integer userId);
+    List<Task> findByUserId(UUID userId);
     List<Task> findByParentTaskId(Integer parentTaskId);
 }
