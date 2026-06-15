@@ -2,6 +2,7 @@ package com.theblind.todo.Entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,11 +20,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "task")
-public class task {
+@Table(name = "Task")
+public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private Integer id;
+    private UUID id;
 
     @Column(name = "task_content", length = 50)
     private String taskContent;
@@ -31,14 +32,14 @@ public class task {
     // Self-referencing FK: a task can have a parent task
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_task_id")
-    private task parentTask;
+    private Task parentTask;
 
     @OneToMany(mappedBy = "parentTask", fetch = FetchType.LAZY)
-    private List<task> subtask;
+    private List<Task> subtask;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private user user;
+    private User user;
 
     @Column(name = "is_complete")
     private Boolean isComplete = false;
