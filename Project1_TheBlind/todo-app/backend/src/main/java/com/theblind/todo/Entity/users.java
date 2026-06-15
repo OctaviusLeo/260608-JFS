@@ -1,6 +1,6 @@
 package com.theblind.todo.Entity;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,21 +11,21 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/*
-    This "users" class is the "user" entity. 
-    It is mapped to the "users" table in the database.
-*/
-@Data // Lombok provides setters, getters, args constructors, ...
-@NoArgsConstructor // for Entity decorate
-@Entity // class mapped to a table in DB
-@Table(name = "users") // the table's name 
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "users")
 public class users {
-    @Column // not needed b/c of "@Id"
-    @Id // Primary Key
-    @GeneratedValue(strategy = GenerationType.UUID) // Auto generate values
-    private UUID id;
-    @Column(nullable = false, unique = true) // Spring to make username column unique and not null, a composite key
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(length = 50, nullable = false, unique = true)
     private String username;
-    @Column(nullable = false) // password != null
+
+    @Column(length = 50, nullable = false)
     private String password;
+
+    @Column(name = "users_creation", updatable = false)
+    private LocalDateTime usersCreation = LocalDateTime.now();
 }
