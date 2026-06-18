@@ -18,12 +18,12 @@ public interface TaskRepo extends JpaRepository<Task, UUID> {
         nativeQuery = true,
         value = """
                 WITH RECURSIVE Children AS (
-                    SELECT id FROM tasks WHERE id = :id
+                    SELECT id FROM Task WHERE id = :id
 
                     UNION ALL
 
                     SELECT child.id
-                    FROM tasks child
+                    FROM Task child
                     INNER JOIN Children parent ON child.parent_task_id = parent.id
                 )
                 
