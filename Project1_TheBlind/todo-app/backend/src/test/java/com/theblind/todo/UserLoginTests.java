@@ -20,10 +20,6 @@ import org.json.JSONException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.theblind.todo.TodoApplication;
-
-import static org.springframework.boot.SpringApplication.run;
-
 @DisplayName("User login unit tests")
 public class UserLoginTests {
 	ApplicationContext app;

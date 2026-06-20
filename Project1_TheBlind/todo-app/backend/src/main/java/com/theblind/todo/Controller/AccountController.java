@@ -1,12 +1,10 @@
 package com.theblind.todo.Controller;
 
 import com.theblind.todo.Entity.User;
-import com.theblind.todo.Repo.AccountRepo;
 import com.theblind.todo.Service.AccountService;
 import com.theblind.todo.Service.JWTService;
 import com.theblind.todo.Exception.RegistrationFailureException;
 import com.theblind.todo.Exception.LoginFailureException;
-import com.theblind.todo.Exception.GlobalExceptionHandler;
 import com.theblind.todo.Response.LoginResponse;
 
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.UUID;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/api")
@@ -34,7 +25,6 @@ public class AccountController {
     * @param accountService - service to manage business logic 
     *                         of account registration and login.
     */
-    @Autowired
     public AccountController(AccountService accountService, JWTService jwtService) {
         this.accountService = accountService;
         this.jwtService = jwtService;

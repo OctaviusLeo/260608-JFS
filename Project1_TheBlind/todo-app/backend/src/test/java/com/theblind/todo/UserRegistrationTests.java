@@ -16,10 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.theblind.todo.TodoApplication;
-
-import static org.springframework.boot.SpringApplication.run;
-
 @DisplayName("User registration unit tests")
 public class UserRegistrationTests {
 	ApplicationContext app;

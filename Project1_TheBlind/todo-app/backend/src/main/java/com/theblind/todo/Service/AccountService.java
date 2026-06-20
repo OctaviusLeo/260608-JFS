@@ -4,34 +4,30 @@ import com.theblind.todo.Entity.User;
 import com.theblind.todo.Repo.AccountRepo;
 import com.theblind.todo.Exception.RegistrationFailureException;
 import com.theblind.todo.Exception.LoginFailureException;
-import com.theblind.todo.Exception.GlobalExceptionHandler;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.theblind.todo.Service.AccountService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
 public class AccountService {
-    @Autowired
     private final AccountRepo accountRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;    
+    
+    public AccountService(AccountRepo accountRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+        this.accountRepository = accountRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+    }
 
     /**
     * createAccount - Creates a new account with the given username and password
