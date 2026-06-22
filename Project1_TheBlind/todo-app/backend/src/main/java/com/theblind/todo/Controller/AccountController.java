@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
@@ -38,6 +37,7 @@ public class AccountController {
     * @return ResponseEntity object with new user info in body of response (201 CREATED)
     * @throws RegistrationFailure exception if username or password do not fit requirements
     */
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/register")
     public ResponseEntity<User> createAccount(@RequestBody User user) throws RegistrationFailureException {
         User newUser = accountService.createAccount(user.getUsername(), user.getPassword());
@@ -52,6 +52,7 @@ public class AccountController {
     * @return ResponseEntity object with existing user info in body of response (200 OK)
     * @throws LoginFailure exception if credentials don't match any user in database
     */
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/auth/login")
     public ResponseEntity<LoginResponse> loginAccount(@RequestBody User user) throws LoginFailureException {
         User existingUser = accountService.loginAccount(user.getUsername(), user.getPassword());
