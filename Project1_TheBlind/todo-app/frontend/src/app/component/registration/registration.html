@@ -1,6 +1,50 @@
-<h1>Welcome to the taskboard! Please create an account.</h1>
-<button (click)="onSubmit()">Create Account</button>
+<div class="register-container">
+  <h2>Create Your Account</h2>
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Username Field -->
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input 
+        id="username" 
+        type="text" 
+        formControlName="username" 
+        [ngClass]="{ 'is-invalid': isSubmitted && f['username'].errors }" />
+      <div *ngIf="isSubmitted && f['username'].errors" class="error-msg">
+        <small *ngIf="f['username'].errors['required']">Username is required.</small>
+        <small *ngIf="f['username'].errors['minlength']">Minimum 4 characters required.</small>
+      </div>
+    </div>
+    
+    <!-- Password Field -->
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input 
+        id="password" 
+        type="password" 
+        formControlName="password" 
+        [ngClass]="{ 'is-invalid': isSubmitted && f['password'].errors }" />
+      <div *ngIf="isSubmitted && f['password'].errors" class="error-msg">
+        <small *ngIf="f['password'].errors['required']">Password is required.</small>
+        <small *ngIf="f['password'].errors['minlength']">Password must contain at least 6 characters.</small>
+      </div>
+    </div>
 
-<div *ngIf="errorMessage" style="color: red;">
-  {{ errorMessage }}
+    <!-- Confirm Password Field -->
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input 
+        id="confirmPassword" 
+        type="password" 
+        formControlName="confirmPassword" 
+        [ngClass]="{ 'is-invalid': isSubmitted && f['confirmPassword'].errors }" />
+      <div *ngIf="isSubmitted && f['confirmPassword'].errors" class="error-msg">
+        <small *ngIf="f['confirmPassword'].errors['required']">Please confirm your password.</small>
+        <small *ngIf="f['confirmPassword'].errors['passwordMismatch']">Passwords do not match.</small>
+      </div>
+    </div>
+
+    <!-- Form Submit Action Button -->
+    <button type="submit" class="btn-submit" (click)="onSubmit()">Create Account</button>
+  </form>
 </div>
