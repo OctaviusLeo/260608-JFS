@@ -1,6 +1,31 @@
-<header>
+<header class="dashboard-header">
   <h1>Task Dashboard</h1>
+  <!-- NOTE (Authentication UI Engineer): logout control / user menu belongs here. -->
 </header>
-<main>
-  <p>Your tasks will appear here.</p>
+
+<main class="dashboard-main">
+  <div class="task-controls">
+    <input
+      type="text"
+      class="context-input"
+      [(ngModel)]="newTaskContent"
+      (keyup.enter)="onAddTask()"
+      placeholder="What needs doing?"
+      maxlength="50"
+    />
+    <button type="button" class="add-btn" (click)="onAddTask()">Add</button>
+  </div>
+
+  @if (loading()) {
+    <p class="status">Loading tasks&hellip;</p>
+  } @else if (tasks().length === 0) {
+    <p class="status">No tasks yet. Add one above to get started.</p>
+  } @else {
+    <!-- One task-item per root task; (refresh) re-fetches the tree after any change. -->
+    <ul class="task-tree">
+      @for (task of tasks(); track task.id) {
+        <app-task-item [task]="task" (refresh)="loadTasks()" />
+      }
+    </ul>
+  }
 </main>
