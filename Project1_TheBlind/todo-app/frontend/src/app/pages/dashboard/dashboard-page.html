@@ -21,7 +21,7 @@
   } @else if (tasks().length === 0) {
     <p class="status">No tasks yet. Add one above to get started.</p>
   } @else {
-    <!-- One task-item per root task; (refresh) re-fetches the tree after any change. -->
+    <!-- One task-item per root task. (refresh) reloads the tree after a task is added or deleted. -->
     <ul class="task-tree">
       @for (task of tasks(); track task.id) {
         <app-task-item [task]="task" (refresh)="loadTasks()" />

@@ -62,7 +62,7 @@ describe('TaskItemComponent', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Child');
   });
 
-  it('toggling complete dispatches a PATCH with current content + new state and emits refresh', async () => {
+  it('toggling complete updates in place via PATCH without reloading the tree', async () => {
     fixture.componentRef.setInput(
       'task',
       node({ id: 't1', taskContent: 'Walk dog', isComplete: false }),
@@ -83,7 +83,42 @@ describe('TaskItemComponent', () => {
     expect(req.request.body).toEqual({ taskContent: 'Walk dog', isComplete: true });
     req.flush({ id: 't1', taskContent: 'Walk dog', parent_task_id: null, isComplete: true });
 
-    expect(refreshed).toBe(true);
+    // A simple update should not trigger a tree reload.
+    expect(refreshed).toBe(false);
+  });
+
+  it('renaming saves via PATCH in place without reloading the tree', async () => {
+    fixture.componentRef.setInput(
+      'task',
+      node({ id: 'r1', taskContent: 'Old name', isComplete: false }),
+    );
+    await fixture.whenStable();
+
+    let refreshed = false;
+    component.refresh.subscribe(() => (refreshed = true));
+
+    (component as any).editContent = 'New name';
+    (component as any).onRename();
+
+    const req = httpMock.expectOne(`${BASE}/r1`);
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ taskContent: 'New name', isComplete: false });
+    req.flush({ id: 'r1', taskContent: 'New name', parent_task_id: null, isComplete: false });
+
+    expect(refreshed).toBe(false);
+  });
+
+  it('does not PATCH when the rename is blank or unchanged', async () => {
+    fixture.componentRef.setInput('task', node({ id: 'r2', taskContent: 'Same' }));
+    await fixture.whenStable();
+
+    (component as any).editContent = '   ';
+    (component as any).onRename();
+    httpMock.expectNone(`${BASE}/r2`);
+
+    (component as any).editContent = 'Same';
+    (component as any).onRename();
+    httpMock.expectNone(`${BASE}/r2`);
   });
 
   it('adding a subtask POSTs with parent_task_id and emits refresh', async () => {

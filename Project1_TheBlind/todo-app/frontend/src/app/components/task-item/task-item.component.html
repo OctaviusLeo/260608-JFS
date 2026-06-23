@@ -4,15 +4,35 @@
     <input
       type="checkbox"
       class="task-checkbox"
-      [checked]="task().isComplete"
+      [checked]="isComplete()"
       (change)="onToggleComplete($any($event.target).checked)"
     />
 
-    <span class="task-content" [class.completed]="task().isComplete">
-      {{ task().taskContent }}
-    </span>
+    @if (isEditing()) {
+      <!-- Rename mode. Enter saves, Escape cancels, leaving the field also saves. -->
+      <input
+        type="text"
+        class="task-edit-input"
+        [(ngModel)]="editContent"
+        (keyup.enter)="onRename()"
+        (keyup.escape)="cancelEdit()"
+        (blur)="onRename()"
+        maxlength="50"
+        autofocus
+      />
+    } @else {
+      <span
+        class="task-content"
+        [class.completed]="isComplete()"
+        (dblclick)="startEdit()"
+        title="Double click to rename"
+      >
+        {{ content() }}
+      </span>
+    }
 
     <span class="task-actions">
+      <button type="button" class="icon-btn" (click)="startEdit()" title="Rename task">edit</button>
       <button type="button" class="icon-btn" (click)="toggleAddSubtask()" title="Add subtask">
         +
       </button>
@@ -40,9 +60,8 @@
     <ul class="task-tree">
       @for (child of task().children; track child.id) {
         <!--
-          Recursion: each child renders another task-item. A child's `refresh`
-          is passed straight up so the event bubbles to the dashboard, which
-          reloads the whole tree.
+          Recursion: each child renders another task-item. A child's refresh
+          bubbles straight up to the dashboard, which reloads the tree.
         -->
         <app-task-item [task]="child" (refresh)="refresh.emit()" />
       }
