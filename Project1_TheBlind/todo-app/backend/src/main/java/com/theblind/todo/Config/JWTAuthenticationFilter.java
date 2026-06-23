@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,9 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+
+import org.springframework.stereotype.Component;
+
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.context.annotation.Configuration;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
 
@@ -35,18 +38,24 @@ import java.io.IOException;
  * request continues unauthenticated and Spring Security handles authorization
  * normally (e.g. returning 401/403 for protected routes).
  */
-@Configuration
-@RequiredArgsConstructor
+@Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
     /** Delegates unhandled exceptions to Spring MVC's exception resolution pipeline. */
-    private HandlerExceptionResolver handlerExceptionResolver;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     /** Service responsible for JWT creation, parsing, and validation. */
+    // must not be 'final'
     private JWTConfig jwtConfig;
 
     /** Loads user details by username for token validation. */
+    // must not be 'final'
     private UserDetailsService userDetailsService;
 
+    public JWTAuthenticationFilter(
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+    ) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+    }
     /**
      * Core filter logic. Runs once per request to authenticate the caller via JWT.
      *
