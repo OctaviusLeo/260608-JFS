@@ -109,6 +109,5 @@ public class TaskService {
         }
 
         repo.deleteChildren(id);
-        repo.delete(target.get());
     }
 }
