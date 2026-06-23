@@ -1,0 +1,52 @@
+.dashboard-header {
+  width: 540px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+}
+
+.dashboard-header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.dashboard-main {
+  border: 1px solid #ccc;
+  width: 500px;
+  padding: 20px;
+  margin: 16px auto;
+}
+
+.task-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.context-input {
+  flex-grow: 1;
+  border: 1px solid #999;
+  padding: 6px 8px;
+}
+
+.add-btn {
+  border: 1px solid #999;
+  background-color: #dbe4f0;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background-color: #c9d6e8;
+}
+
+.status {
+  color: #777;
+  font-style: italic;
+}
+
+/* Top-level task list; nested lists are styled in task-item.component.css. */
+.task-tree {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}

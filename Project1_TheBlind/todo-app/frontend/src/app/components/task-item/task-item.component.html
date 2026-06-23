@@ -1,0 +1,70 @@
+<li class="task-node">
+  <div class="task-row">
+    <!-- $any(...) casts the EventTarget so the template can read .checked. -->
+    <input
+      type="checkbox"
+      class="task-checkbox"
+      [checked]="isComplete()"
+      (change)="onToggleComplete($any($event.target).checked)"
+    />
+
+    @if (isEditing()) {
+      <!-- Rename mode. Enter saves, Escape cancels, leaving the field also saves. -->
+      <input
+        type="text"
+        class="task-edit-input"
+        [(ngModel)]="editContent"
+        (keyup.enter)="onRename()"
+        (keyup.escape)="cancelEdit()"
+        (blur)="onRename()"
+        maxlength="50"
+        autofocus
+      />
+    } @else {
+      <span
+        class="task-content"
+        [class.completed]="isComplete()"
+        (dblclick)="startEdit()"
+        title="Double click to rename"
+      >
+        {{ content() }}
+      </span>
+    }
+
+    <span class="task-actions">
+      <button type="button" class="icon-btn" (click)="startEdit()" title="Rename task">edit</button>
+      <button type="button" class="icon-btn" (click)="toggleAddSubtask()" title="Add subtask">
+        +
+      </button>
+      <button type="button" class="icon-btn delete" (click)="onDelete()" title="Delete task">
+        &times;
+      </button>
+    </span>
+  </div>
+
+  @if (showAddSubtask()) {
+    <div class="subtask-form">
+      <input
+        type="text"
+        class="subtask-input"
+        [(ngModel)]="newSubtaskContent"
+        (keyup.enter)="onAddSubtask()"
+        placeholder="New subtask"
+        maxlength="50"
+      />
+      <button type="button" class="add-btn" (click)="onAddSubtask()">Add</button>
+    </div>
+  }
+
+  @if (task().children.length) {
+    <ul class="task-tree">
+      @for (child of task().children; track child.id) {
+        <!--
+          Recursion: each child renders another task-item. A child's refresh
+          bubbles straight up to the dashboard, which reloads the tree.
+        -->
+        <app-task-item [task]="child" (refresh)="refresh.emit()" />
+      }
+    </ul>
+  }
+</li>
