@@ -25,20 +25,28 @@ export class DashboardPage implements OnInit {
   protected readonly loading = signal(false);
   protected newTaskContent = '';
 
+  // Tracks whether the first load has happened, so reloads after add or delete
+  // do not blank the list with the loading message.
+  private hasLoaded = false;
+
   ngOnInit(): void {
     this.loadTasks();
   }
 
   /** Fetch the flat task list and rebuild the rendered tree. */
   protected loadTasks(): void {
-    this.loading.set(true);
+    if (!this.hasLoaded) {
+      this.loading.set(true);
+    }
     this.taskService.getTasks().subscribe({
       next: (flat) => {
         this.tasks.set(this.buildTree(flat));
         this.loading.set(false);
+        this.hasLoaded = true;
       },
       error: () => {
         this.loading.set(false);
+        this.hasLoaded = true;
         // NOTE (Authentication UI Engineer): handle session/auth errors (401/403) and messaging here.
       },
     });
@@ -63,7 +71,7 @@ export class DashboardPage implements OnInit {
    * Build a nested tree from the backend's flat list using parent_task_id:
    *  1. index every task by id (with an empty children array)
    *  2. attach each child to its parent; tasks with no/unknown parent are roots
-   *  3. return only the roots - children hang off them by reference
+   *  3. return only the roots; children hang off them by reference
    */
   private buildTree(flat: Task[]): TaskNode[] {
     const byId = new Map<string, TaskNode>();
