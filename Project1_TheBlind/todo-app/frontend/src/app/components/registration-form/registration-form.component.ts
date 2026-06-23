@@ -1,16 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RegistrationService } from '../../service/registration-service';
-import { User } from '../../interface/user';
+import { RegistrationService } from '../../services/registration-service';
+import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-registration',
+  selector: 'app-registration-form',
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './registration.html',
-  styleUrl: './registration.css',
+  templateUrl: './registration-form.component.html',
+  styleUrl: './registration-form.component.css',
 })
-export class Registration {
+export class RegistrationForm {
   createdUser: User | null = null;
   errorMessage: string | null = null;
   registerForm!: FormGroup;
@@ -54,8 +54,6 @@ export class Registration {
     }
 
     console.log('Registration Data Successfully Submitted:', this.registerForm.value);
-    // Execute backend API service transmission layer here
-    // Execute the POST request and handle response
 
     const newUser: User = {
       username: this.registerForm.value.username,
