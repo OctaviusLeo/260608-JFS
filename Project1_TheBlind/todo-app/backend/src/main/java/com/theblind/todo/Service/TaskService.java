@@ -24,7 +24,7 @@ public class TaskService {
      * @return an {@link Optional} containing an error message if validation fails, or empty if none are found
      */
     private Optional<String> verifyTextContent(String content) {
-        if(content.isEmpty()) {
+        if(content.isBlank()) {
             return Optional.of("Text Content cannot be blank or empty.");
         }
 
