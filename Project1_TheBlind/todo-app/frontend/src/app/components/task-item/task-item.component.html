@@ -1,0 +1,51 @@
+<li class="task-node">
+  <div class="task-row">
+    <!-- $any(...) casts the EventTarget so the template can read .checked. -->
+    <input
+      type="checkbox"
+      class="task-checkbox"
+      [checked]="task().isComplete"
+      (change)="onToggleComplete($any($event.target).checked)"
+    />
+
+    <span class="task-content" [class.completed]="task().isComplete">
+      {{ task().taskContent }}
+    </span>
+
+    <span class="task-actions">
+      <button type="button" class="icon-btn" (click)="toggleAddSubtask()" title="Add subtask">
+        +
+      </button>
+      <button type="button" class="icon-btn delete" (click)="onDelete()" title="Delete task">
+        &times;
+      </button>
+    </span>
+  </div>
+
+  @if (showAddSubtask()) {
+    <div class="subtask-form">
+      <input
+        type="text"
+        class="subtask-input"
+        [(ngModel)]="newSubtaskContent"
+        (keyup.enter)="onAddSubtask()"
+        placeholder="New subtask"
+        maxlength="50"
+      />
+      <button type="button" class="add-btn" (click)="onAddSubtask()">Add</button>
+    </div>
+  }
+
+  @if (task().children.length) {
+    <ul class="task-tree">
+      @for (child of task().children; track child.id) {
+        <!--
+          Recursion: each child renders another task-item. A child's `refresh`
+          is passed straight up so the event bubbles to the dashboard, which
+          reloads the whole tree.
+        -->
+        <app-task-item [task]="child" (refresh)="refresh.emit()" />
+      }
+    </ul>
+  }
+</li>
