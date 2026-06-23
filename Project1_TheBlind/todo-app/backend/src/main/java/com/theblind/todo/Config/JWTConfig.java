@@ -1,4 +1,4 @@
-package com.theblind.todo.Service;
+package com.theblind.todo.Config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -16,15 +16,10 @@ import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
 
-@Service
-public class JWTService {
-
-    public JWTService() {
-
-    }
-
+@Configuration
+public class JWTConfig {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
@@ -80,6 +75,7 @@ public class JWTService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    // validating token
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
