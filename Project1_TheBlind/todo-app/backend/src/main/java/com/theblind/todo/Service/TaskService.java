@@ -108,6 +108,9 @@ public class TaskService {
             throw new ResourceNotFoundException("Task not found with id: " + id);
         }
 
-        repo.deleteChildren(id);
+        // Deleting the entity cascades through the @OneToMany subtask relationship
+        // (cascade = ALL, orphanRemoval = true), so the parent and every nested
+        // descendant is removed recursively for arbitrarily deep nesting.
+        repo.delete(target.get());
     }
 }
