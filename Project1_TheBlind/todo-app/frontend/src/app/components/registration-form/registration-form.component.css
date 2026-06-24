@@ -1,0 +1,153 @@
+/* ── Page wrapper ────────────────────────────────────────────────────────────
+   Fills the full viewport height and centers the form card both horizontally
+   and vertically using flexbox. The light gray background (#f0f2f5) provides
+   contrast against the white form card. Padding ensures the card doesn't touch
+   the screen edges on small viewports.
+────────────────────────────────────────────────────────────────────────────── */
+.register-container {
+  display: flex;
+  justify-content: center;   /* horizontal centering */
+  align-items: center;       /* vertical centering */
+  min-height: 100vh;         /* stretch to at least the full viewport height */
+  background-color: #f0f2f5; /* soft gray page background */
+  padding: 1rem;             /* breathing room on small screens */
+}
+
+/* ── Form card ───────────────────────────────────────────────────────────────
+   The <form> element acts as a floating card. It has a white background,
+   rounded corners, and a layered box-shadow to give it depth. max-width caps
+   the card at 420px so it doesn't stretch uncomfortably wide on large screens.
+   flex-direction: column stacks all .form-group children vertically with a
+   consistent 1.25rem gap between them.
+────────────────────────────────────────────────────────────────────────────── */
+.register-container form {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* soft ambient shadow */
+  padding: 2.5rem 2rem;                       /* generous inner spacing */
+  width: 100%;                                /* fluid inside the container */
+  max-width: 420px;                           /* prevents over-stretching */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;                               /* space between each field group */
+}
+
+/* ── Form group (label + input + error message) ──────────────────────────────
+   Each .form-group wraps a single field: its <label>, its <input>, and an
+   optional .error-msg block. flex-direction: column stacks them top-to-bottom.
+   The 0.4rem gap keeps the label close to the input without crowding.
+────────────────────────────────────────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem; /* tight gap so label, input, and error feel like one unit */
+}
+
+/* ── Field label ─────────────────────────────────────────────────────────────
+   Small, semi-bold text in dark gray. font-size 0.875rem (14px) keeps labels
+   visually secondary to the input values while remaining clearly readable.
+────────────────────────────────────────────────────────────────────────────── */
+.form-group label {
+  font-size: 0.875rem;  /* 14px — readable but not dominant */
+  font-weight: 600;
+  color: #374151;       /* dark gray, not full black — softer on the eyes */
+}
+
+/* ── Text / password input ───────────────────────────────────────────────────
+   Inputs have a light border (#d1d5db), rounded corners, and a faint off-white
+   background to visually distinguish them from the card. The outline is removed
+   so we can supply a custom focus ring via box-shadow. Transitions on
+   border-color and box-shadow make focus feel smooth rather than abrupt.
+────────────────────────────────────────────────────────────────────────────── */
+.form-group input {
+  padding: 0.6rem 0.75rem;              /* comfortable click/tap target */
+  font-size: 0.95rem;
+  border: 1.5px solid #d1d5db;         /* subtle default border */
+  border-radius: 6px;
+  outline: none;                        /* replaced by box-shadow on focus */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: #111827;                       /* near-black text for maximum contrast */
+  background-color: #fafafa;            /* very light gray distinguishes input from card */
+}
+
+/* ── Input focus state ───────────────────────────────────────────────────────
+   On focus, the border switches to indigo (#6366f1) and a semi-transparent
+   indigo glow ring appears. The background lightens to pure white to signal
+   the field is active. This replaces the browser's default blue outline.
+────────────────────────────────────────────────────────────────────────────── */
+.form-group input:focus {
+  border-color: #6366f1;                          /* indigo accent */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); /* soft indigo glow ring */
+  background-color: #ffffff;
+}
+
+/* ── Invalid input state (applied via Angular [ngClass] binding) ─────────────
+   When Angular adds the .is-invalid class (after form submission with errors),
+   the border turns red to immediately signal the problem field to the user.
+────────────────────────────────────────────────────────────────────────────── */
+.form-group input.is-invalid {
+  border-color: #ef4444; /* red — universally recognised as an error colour */
+}
+
+/* ── Invalid input focus state ───────────────────────────────────────────────
+   Keeps the red border on focus and swaps the glow ring to a red tint so the
+   error state persists even when the user clicks into the field to correct it.
+────────────────────────────────────────────────────────────────────────────── */
+.form-group input.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15); /* soft red glow ring */
+}
+
+/* ── Validation error message block ─────────────────────────────────────────
+   .error-msg sits directly below the input and can contain multiple <small>
+   elements (e.g. both "required" and "minlength" at once). flex-direction:
+   column stacks them with a tiny gap so they don't run together.
+────────────────────────────────────────────────────────────────────────────── */
+.error-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem; /* minimal gap — multiple errors should feel like a list */
+}
+
+/* ── Individual error text ───────────────────────────────────────────────────
+   Each <small> carries one validation message. The red color matches the
+   invalid border so the message and the field it belongs to feel connected.
+   0.78rem (≈12.5px) is small enough to be secondary but still legible.
+────────────────────────────────────────────────────────────────────────────── */
+.error-msg small {
+  font-size: 0.78rem;
+  color: #ef4444; /* matches .is-invalid border color for visual consistency */
+}
+
+/* ── Submit button ───────────────────────────────────────────────────────────
+   Full-width indigo button that spans the card. font-weight 600 makes the
+   label prominent. The 0.2s background-color transition smooths the hover
+   darkening. The :active scale gives a tactile "press" feel on click.
+────────────────────────────────────────────────────────────────────────────── */
+.btn-submit {
+  margin-top: 0.5rem;       /* extra space above the button to separate from fields */
+  padding: 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #6366f1; /* indigo — matches the focus ring accent color */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* ── Button hover state ──────────────────────────────────────────────────────
+   Darkens the background to #4f46e5 (deeper indigo) to acknowledge the hover
+   without a jarring colour change.
+────────────────────────────────────────────────────────────────────────────── */
+.btn-submit:hover {
+  background-color: #4f46e5;
+}
+
+/* ── Button active (click) state ─────────────────────────────────────────────
+   A subtle 2% scale-down when the button is pressed mimics a physical button
+   being pushed in, providing clear click feedback.
+────────────────────────────────────────────────────────────────────────────── */
+.btn-submit:active {
+  transform: scale(0.98);
+}
