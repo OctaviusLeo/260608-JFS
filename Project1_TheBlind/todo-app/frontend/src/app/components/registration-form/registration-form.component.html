@@ -11,7 +11,9 @@
         [ngClass]="{ 'is-invalid': isSubmitted && f['username'].errors }" />
       <div *ngIf="isSubmitted && f['username'].errors" class="error-msg">
         <small *ngIf="f['username'].errors['required']">Username is required.</small>
-        <small *ngIf="f['username'].errors['minlength']">Minimum 4 characters required.</small>
+        <small *ngIf="f['username'].errors['minlength']">Minimum 5 characters required (no spaces allowed).</small>
+        <small *ngIf="f['username'].errors['maxlength']">Maximum 15 characters.</small>
+        <small *ngIf="f['username'].errors['pattern']">No spaces allowed.</small>
       </div>
     </div>
     
@@ -25,7 +27,9 @@
         [ngClass]="{ 'is-invalid': isSubmitted && f['password'].errors }" />
       <div *ngIf="isSubmitted && f['password'].errors" class="error-msg">
         <small *ngIf="f['password'].errors['required']">Password is required.</small>
-        <small *ngIf="f['password'].errors['minlength']">Password must contain at least 6 characters.</small>
+        <small *ngIf="f['password'].errors['minlength']">Minimum 5 characters required.</small>
+        <small *ngIf="f['password'].errors['maxlength']">Maximum 15 characters.</small>
+        <small *ngIf="f['password'].errors['pattern']">Password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character. No spaces allowed.</small>
       </div>
     </div>
 
@@ -44,6 +48,6 @@
     </div>
 
     <!-- Form Submit Action Button -->
-    <button type="submit" class="btn-submit" (click)="onSubmit()">Create Account</button>
+    <button type="submit" class="btn-submit">Create Account</button>
   </form>
 </div>

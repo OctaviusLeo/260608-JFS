@@ -20,10 +20,12 @@ export class RegistrationForm {
 
   private registrationService = inject(RegistrationService);
 
+  private characterValidationRegex: RegExp = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=(?:.*[^A-Za-z0-9]){2}).+$/;
+
   ngOnInit(): void {
     this.registerForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(4)]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(15), Validators.pattern(/^\S+$/)]],
+      password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(15), Validators.pattern(this.characterValidationRegex), Validators.pattern(/^\S+$/)]],
       confirmPassword: ['', [Validators.required]]
     }, {
       validators: this.passwordMatchValidator
@@ -53,7 +55,7 @@ export class RegistrationForm {
       return;
     }
 
-    console.log('Registration Data Successfully Submitted:', this.registerForm.value);
+    // console.log('Registration Data Successfully Submitted:', this.registerForm.value);
 
     const newUser: User = {
       username: this.registerForm.value.username,
@@ -63,11 +65,12 @@ export class RegistrationForm {
     this.registrationService.registerUser(newUser).subscribe({
       next: (response) => {
         this.createdUser = response;
-        console.log('User created successfully:', response);
+        // console.log('User created successfully:', response);
       },
       error: (error) => {
         this.errorMessage = 'Failed to create user.';
-        console.error('API Error:', error);
+        // console.error('API Error:', error);
+        alert("Error: Username or password must not contain spaces.");
       }
     });
   }
