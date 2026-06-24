@@ -1,7 +1,7 @@
 .dashboard-header {
-  width: 540px;
-  margin: 24px auto 0;
-  padding: 0 20px;
+  max-width: 540px;
+  margin: var(--space-6) auto 0;
+  padding: 0 var(--space-4);
 }
 
 .dashboard-header h1 {
@@ -10,37 +10,23 @@
 }
 
 .dashboard-main {
-  border: 1px solid #ccc;
-  width: 500px;
-  padding: 20px;
-  margin: 16px auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-subtle);
+  max-width: 540px;
+  padding: var(--space-6);
+  margin: var(--space-4) auto;
 }
 
 .task-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.context-input {
-  flex-grow: 1;
-  border: 1px solid #999;
-  padding: 6px 8px;
-}
-
-.add-btn {
-  border: 1px solid #999;
-  background-color: #dbe4f0;
-  padding: 6px 16px;
-  cursor: pointer;
-}
-
-.add-btn:hover {
-  background-color: #c9d6e8;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .status {
-  color: #777;
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 
