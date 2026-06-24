@@ -1,7 +1,6 @@
 package com.theblind.todo;
 
 import com.theblind.todo.Config.GlobalSecurityConfig;
-import com.theblind.todo.Config.JwtAuthFilter;
 import com.theblind.todo.Controller.TaskController;
 import com.theblind.todo.Entity.Task;
 import com.theblind.todo.Exception.ResourceNotFoundException;
@@ -37,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = TaskController.class,
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
-                classes = {GlobalSecurityConfig.class, JwtAuthFilter.class}))
+                classes = {GlobalSecurityConfig.class}))
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("TaskController web layer tests")
 class TaskControllerTest {

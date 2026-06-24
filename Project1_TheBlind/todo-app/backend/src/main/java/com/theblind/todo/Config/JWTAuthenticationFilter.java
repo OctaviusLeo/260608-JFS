@@ -43,6 +43,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     /** Delegates unhandled exceptions to Spring MVC's exception resolution pipeline. */
     private final HandlerExceptionResolver handlerExceptionResolver;
 
+    // marking jwtConfig and userDetailsService as 'final' causes TaskController tests to fail
+    // (still debugging to find out why)
     /** Service responsible for JWT creation, parsing, and validation. */
     private final JWTConfig jwtConfig;
 

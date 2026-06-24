@@ -62,7 +62,7 @@ public class AccountController {
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtConfig.getExpirationTime());
         loginResponse.setUsername(existingUser.getUsername());
-        loginResponse.setUserId(existingUser.getUserId());
+        loginResponse.setUserId(existingUser.getId());
         
         return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
     }
