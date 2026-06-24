@@ -1,5 +1,6 @@
 package com.theblind.todo;
 
+import com.theblind.todo.Config.GlobalSecurityConfig;
 import com.theblind.todo.Controller.TaskController;
 import com.theblind.todo.Entity.Task;
 import com.theblind.todo.Exception.ResourceNotFoundException;
@@ -9,7 +10,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,7 +27,17 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(TaskController.class)
+// This is a web-layer slice test for TaskController only. The application's JWT
+// security (GlobalSecurityConfig + JwtAuthFilter) has runtime bean dependencies
+// (AuthenticationProvider, JWTService, UserDetailsService) that are not part of
+// the web slice, so the security config is excluded from this slice and the
+// servlet filters are disabled. Server-side access control is covered separately
+// by SecurityAccessControlTest (a full-context @SpringBootTest).
+@WebMvcTest(controllers = TaskController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = {GlobalSecurityConfig.class}))
+@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("TaskController web layer tests")
 class TaskControllerTest {
 

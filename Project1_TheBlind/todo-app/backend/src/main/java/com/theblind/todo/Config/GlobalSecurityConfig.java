@@ -8,14 +8,23 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/*
+ * GlobalSecurityConfig wires the stateless JWT security model:
+ *   - CSRF is disabled because the API is token-based (no cookies/sessions).
+ *   - Authentication endpoints (registration + login) are publicly reachable.
+ *   - Every other request requires a valid JWT, enforced by JwtAuthFilter.
+ *   - Sessions are STATELESS; authentication is carried by the bearer token.
+ */
 @Configuration
 @EnableWebSecurity
 public class GlobalSecurityConfig {
 
+    private CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public GlobalSecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter) {
+    public GlobalSecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter, CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -23,12 +32,16 @@ public class GlobalSecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/register", "/api/auth/**").permitAll()
+                .requestMatchers(
+                    "/api/register",
+                    "/api/auth/login",
+                    "/api/tasks").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }

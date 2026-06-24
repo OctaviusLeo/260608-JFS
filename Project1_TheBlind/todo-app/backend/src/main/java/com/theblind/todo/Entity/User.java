@@ -32,7 +32,10 @@ public class User implements UserDetails {
     @Column(length = 50, nullable = false, unique = true)
     private String username;
 
-    @Column(length = 50, nullable = false)
+    // BCrypt hashes are 60 characters; the stored value is the encoded hash,
+    // not the raw password, so the column must hold well beyond 50 chars.
+    // (SQLite ignores VARCHAR length, but H2 and most RDBMSs enforce it.)
+    @Column(length = 255, nullable = false)
     private String password;
 
     @Column(name = "user_creation", updatable = false)
@@ -66,7 +69,7 @@ public class User implements UserDetails {
     }
 
     // retrieves user id
-    public UUID getUserId() {
+    public UUID getId() {
         return id;
     }
 
