@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 public class AccountController {
     private final AccountService accountService;
     private final JWTConfig jwtConfig;
-    private final String requestOriginURL = "http://localhost:4200";
+    private final String REQUEST_ORIGIN_URL = "http://localhost:4200";
 
     /**
     *  Constructor for AccountController
@@ -37,7 +37,7 @@ public class AccountController {
     * @return ResponseEntity object with new user info in body of response (201 CREATED)
     * @throws RegistrationFailure exception if username or password do not fit requirements
     */
-    @CrossOrigin(origins = requestOriginURL + "/register")
+    @CrossOrigin(origins = REQUEST_ORIGIN_URL)
     @PostMapping("/register")
     public ResponseEntity<User> createAccount(@RequestBody User user) throws RegistrationFailureException {
         User newUser = accountService.createAccount(user.getUsername(), user.getPassword());
@@ -52,7 +52,7 @@ public class AccountController {
     * @return ResponseEntity object with existing user info in body of response (200 OK)
     * @throws LoginFailure exception if credentials don't match any user in database
     */
-    @CrossOrigin(origins = requestOriginURL  + "/login")
+    @CrossOrigin(origins = REQUEST_ORIGIN_URL)
     @PostMapping("/auth/login")
     public ResponseEntity<LoginResponse> loginAccount(@RequestBody User user) throws LoginFailureException {
         User existingUser = accountService.loginAccount(user.getUsername(), user.getPassword());

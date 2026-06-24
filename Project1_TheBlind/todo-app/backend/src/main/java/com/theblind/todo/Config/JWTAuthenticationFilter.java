@@ -43,18 +43,22 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     /** Delegates unhandled exceptions to Spring MVC's exception resolution pipeline. */
     private final HandlerExceptionResolver handlerExceptionResolver;
 
+    // marking jwtConfig and userDetailsService as 'final' causes TaskController tests to fail
+    // (still debugging to find out why)
     /** Service responsible for JWT creation, parsing, and validation. */
-    // must not be 'final'
-    private JWTConfig jwtConfig;
+    private final JWTConfig jwtConfig;
 
     /** Loads user details by username for token validation. */
-    // must not be 'final'
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     public JWTAuthenticationFilter(
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
+            JWTConfig jwtConfig,
+            UserDetailsService userDetailsService
     ) {
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtConfig = jwtConfig;
+        this.userDetailsService = userDetailsService;
     }
     /**
      * Core filter logic. Runs once per request to authenticate the caller via JWT.
