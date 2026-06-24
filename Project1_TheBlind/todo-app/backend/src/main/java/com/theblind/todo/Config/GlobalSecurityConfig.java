@@ -2,7 +2,6 @@ package com.theblind.todo.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,10 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class GlobalSecurityConfig {
 
+    private CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public GlobalSecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter) {
+    public GlobalSecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter, CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -31,12 +32,16 @@ public class GlobalSecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/register", "/api/auth/**").permitAll()
+                .requestMatchers(
+                    "/api/register",
+                    "/api/auth/login",
+                    "/api/tasks").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
