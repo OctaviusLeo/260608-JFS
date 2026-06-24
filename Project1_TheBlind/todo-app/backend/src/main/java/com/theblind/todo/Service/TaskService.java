@@ -24,7 +24,7 @@ public class TaskService {
      * @return an {@link Optional} containing an error message if validation fails, or empty if none are found
      */
     private Optional<String> verifyTextContent(String content) {
-        if(content.isEmpty()) {
+        if(content.isBlank()) {
             return Optional.of("Text Content cannot be blank or empty.");
         }
 
@@ -108,7 +108,9 @@ public class TaskService {
             throw new ResourceNotFoundException("Task not found with id: " + id);
         }
 
-        repo.deleteChildren(id);
+        // Deleting the entity cascades through the @OneToMany subtask relationship
+        // (cascade = ALL, orphanRemoval = true), so the parent and every nested
+        // descendant is removed recursively for arbitrarily deep nesting.
         repo.delete(target.get());
     }
 }

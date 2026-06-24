@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.theblind.todo.Entity.Task;
 import com.theblind.todo.Service.TaskService;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
+    private final String requestOriginURL = "http://localhost:4200";
 
     /**
      * Retrieve all tasks.
@@ -55,6 +58,7 @@ public class TaskController {
      * @return ResponseEntity containing the {@link Task} and HTTP status 200 (OK) if found,
      *         or HTTP status 404 (Not Found) if the task does not exist.
      */
+    @CrossOrigin(origins = requestOriginURL)
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable UUID id) {
         return taskService.get(id)
@@ -71,6 +75,7 @@ public class TaskController {
      *         or HTTP status 404 (Not Found) if no task with the given id exists.
      * @throws IllegalArgumentException if the provided input is invalid (handled by GlobalExceptionHandler)
      */
+    @CrossOrigin(origins = requestOriginURL)
     @PatchMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable UUID id, @RequestBody Task task) {
         task.setId(id);
@@ -86,6 +91,7 @@ public class TaskController {
      * @return ResponseEntity with HTTP status 204 (No Content) when deletion succeeds.
      * @throws EntityNotFoundException if the task does not exist (handled by GlobalExceptionHandler)
      */
+    @CrossOrigin(origins = requestOriginURL)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
         taskService.delete(id);

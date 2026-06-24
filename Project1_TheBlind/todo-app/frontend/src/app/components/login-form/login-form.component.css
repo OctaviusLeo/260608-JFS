@@ -4,7 +4,7 @@
    contrast against the white form card. Padding ensures the card doesn't touch
    the screen edges on small viewports.
 ────────────────────────────────────────────────────────────────────────────── */
-.register-container {
+.login-container {
   display: flex;
   justify-content: center;   /* horizontal centering */
   align-items: center;       /* vertical centering */
@@ -20,7 +20,7 @@
    flex-direction: column stacks all .form-group children vertically with a
    consistent 1.25rem gap between them.
 ────────────────────────────────────────────────────────────────────────────── */
-.register-container form {
+.login-container form {
   background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* soft ambient shadow */
@@ -162,7 +162,7 @@
    compensate for the larger text taking more space.
 ────────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .register-container form {
+  .login-container form {
     padding: 1.75rem 1.25rem; /* less horizontal padding so the card breathes */
     gap: 1rem;                /* slightly tighter gap between field groups */
   }
@@ -190,7 +190,7 @@
    Card padding is trimmed so the larger text doesn't cause overflow.
 ────────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 360px) {
-  .register-container form {
+  .login-container form {
     padding: 1.25rem 0.75rem; /* tight but not claustrophobic */
     gap: 0.85rem;
     border-radius: 8px;       /* slightly less rounding looks better near screen edges */

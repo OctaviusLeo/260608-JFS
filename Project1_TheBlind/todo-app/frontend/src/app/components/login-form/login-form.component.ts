@@ -1,20 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { LoginService } from '../../services/login-service';
-import { User } from '../../interface/user';
+import { User } from '../../models/user';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TokenStorage } from '../../core/auth/token-storage.service';
 
 @Component({
   selector: 'app-login-form',
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login-form.html',
-  styleUrl: './login-form.css',
+  templateUrl: './login-form.component.html',
+  styleUrl: './login-form.component.css',
 })
 export class LoginForm {
   existingUser: User | null = null;
   errorMessage: string | null = null;
-  JWT: string | null = null;
   loginForm!: FormGroup;
   isSubmitted = false;
 
@@ -23,6 +23,8 @@ export class LoginForm {
   private loginService = inject(LoginService);
 
   private router = inject(Router);
+
+  private tokenStorage = inject(TokenStorage);
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -53,8 +55,11 @@ export class LoginForm {
 
     this.loginService.loginUser(existingUser).subscribe({
       next: (response) => {
-        this.JWT = response.userId;;
         console.log('User logged in successfully:', response);
+        // saved to local storage
+        this.tokenStorage.setToken(response.token);
+        // all login info (including token timer, username, and id) saved as string of JSON object
+        this.loginService.setLoginInfo(response);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
