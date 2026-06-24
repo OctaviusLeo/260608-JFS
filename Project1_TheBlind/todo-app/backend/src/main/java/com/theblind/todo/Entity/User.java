@@ -55,7 +55,7 @@ public class User implements UserDetails {
     /* Overridden functions from UserDetails
     *
     *  Allows for JWT Authentication
-     */
+    */
     // Gives list of permissions user has (will be unused)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -66,6 +66,11 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    // retrieves user id
+    public UUID getUserId() {
+        return id;
     }
 
     // retrieves password

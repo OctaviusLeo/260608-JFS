@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /*
@@ -20,12 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class GlobalSecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
+    private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public GlobalSecurityConfig(JwtAuthFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.authenticationProvider = authenticationProvider;
+    public GlobalSecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -33,20 +31,13 @@ public class GlobalSecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Public authentication endpoints (login + registration).
-                .requestMatchers("/api/auth/**", "/api/register").permitAll()
-                // Permit the error dispatch so unhandled errors surface their real
-                // status (e.g. 400/500) instead of being masked as 403 when the
-                // container forwards to /error.
-                .requestMatchers("/error").permitAll()
-                // Everything else requires a valid JWT.
+                .requestMatchers("/api/register", "/api/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 }
