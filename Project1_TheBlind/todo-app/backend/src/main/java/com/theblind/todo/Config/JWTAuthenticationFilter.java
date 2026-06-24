@@ -46,10 +46,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     // marking jwtConfig and userDetailsService as 'final' causes TaskController tests to fail
     // (still debugging to find out why)
     /** Service responsible for JWT creation, parsing, and validation. */
-    private final JWTConfig jwtConfig;
+    private JWTConfig jwtConfig;
 
     /** Loads user details by username for token validation. */
-    private final UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     public JWTAuthenticationFilter(
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
