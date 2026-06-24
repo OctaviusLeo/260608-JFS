@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { LoginService } from '../../services/login-service';
-import { User } from '../../models/user';
+import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';

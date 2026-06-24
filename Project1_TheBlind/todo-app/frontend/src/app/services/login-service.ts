@@ -1,6 +1,7 @@
 import { Service, inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { User } from '../models/user';
+import { User } from '../models/user.model';
+import { Token } from '../models/token.model';
 import { catchError, Observable, of, tap } from 'rxjs';
 
 @Injectable({
@@ -10,18 +11,18 @@ export class LoginService {
     private loginAPIURL = "http://localhost:8080/api/auth/login";
     private httpClient = inject(HttpClient);
     // string of JSON object containing username, id, token, and token expiration time
-    private loginInfo: string | null = null;
+    private loginInfo: Token | null = null;
 
-    loginUser(user: User): Observable<any> {
+    loginUser(user: User): Observable<Token> {
         const headers = new HttpHeaders({ 
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
         });
         
-        return this.httpClient.post<User>(this.loginAPIURL, user, { headers })
+        return this.httpClient.post<Token>(this.loginAPIURL, user, { headers })
     }
 
-    setLoginInfo(loginInfo: string) {
+    setLoginInfo(loginInfo: Token) {
         this.loginInfo = loginInfo;
     }
 }
