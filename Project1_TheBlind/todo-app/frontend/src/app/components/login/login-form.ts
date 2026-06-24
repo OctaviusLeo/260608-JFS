@@ -1,19 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { LoginService } from '../../service/login-service';
+import { LoginService } from '../../services/login-service';
 import { User } from '../../interface/user';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-login-form',
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login.html',
-  styleUrl: './login.css',
+  templateUrl: './login-form.html',
+  styleUrl: './login-form.css',
 })
-export class Login {
-  JWT: User | any;
+export class LoginForm {
+  existingUser: User | null = null;
   errorMessage: string | null = null;
+  JWT: string | null = null;
   loginForm!: FormGroup;
   isSubmitted = false;
 
@@ -25,8 +26,8 @@ export class Login {
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(5)]],
-      password: ['', [Validators.required, Validators.minLength(5)]],
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]],
     });
   }
 
@@ -52,7 +53,7 @@ export class Login {
 
     this.loginService.loginUser(existingUser).subscribe({
       next: (response) => {
-        this.JWT = response;
+        this.JWT = response.userId;;
         console.log('User logged in successfully:', response);
         this.router.navigate(['/dashboard']);
       },

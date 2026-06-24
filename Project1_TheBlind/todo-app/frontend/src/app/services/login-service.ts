@@ -10,7 +10,7 @@ export class LoginService {
     private loginAPIURL = "http://localhost:8080/api/auth/login";
     private httpClient = inject(HttpClient);
 
-    loginUser(user: User): Observable<User> {
+    loginUser(user: User): Observable<any> {
         const headers = new HttpHeaders({ 
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
