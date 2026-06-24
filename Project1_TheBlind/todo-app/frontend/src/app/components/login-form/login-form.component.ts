@@ -57,9 +57,9 @@ export class LoginForm {
       next: (response) => {
         console.log('User logged in successfully:', response);
         // saved to local storage
-        this.tokenStorage.setToken(response.token);
+        //this.tokenStorage.setToken(response.token);
         // all login info (including token timer, username, and id) saved as string of JSON object
-        this.loginService.setLoginInfo(response);
+        //this.loginService.setLoginInfo(response);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
