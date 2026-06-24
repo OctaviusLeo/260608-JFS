@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RegistrationService } from '../../services/registration-service';
+import { RegistrationService } from '../../services/registration.service';
 import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
