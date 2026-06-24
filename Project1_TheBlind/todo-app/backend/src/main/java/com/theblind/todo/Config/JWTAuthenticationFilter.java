@@ -44,17 +44,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     /** Service responsible for JWT creation, parsing, and validation. */
-    // must not be 'final'
-    private JWTConfig jwtConfig;
+    private final JWTConfig jwtConfig;
 
     /** Loads user details by username for token validation. */
-    // must not be 'final'
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     public JWTAuthenticationFilter(
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
+            JWTConfig jwtConfig,
+            UserDetailsService userDetailsService
     ) {
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtConfig = jwtConfig;
+        this.userDetailsService = userDetailsService;
     }
     /**
      * Core filter logic. Runs once per request to authenticate the caller via JWT.
