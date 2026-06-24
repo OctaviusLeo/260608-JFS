@@ -235,16 +235,16 @@ class TaskServiceTest {
     class Delete {
 
         @Test
-        @DisplayName("calls deleteChildren when task exists")
-        void delete_existingId_callsDeleteChildren() {
+        @DisplayName("deletes the task (cascading to subtasks) when task exists")
+        void delete_existingId_callsDelete() {
             UUID id = UUID.randomUUID();
             Task task = taskWithId(id, "To delete");
             when(repo.findById(id)).thenReturn(Optional.of(task));
-            doNothing().when(repo).deleteChildren(id);
+            doNothing().when(repo).delete(task);
 
             assertThatNoException().isThrownBy(() -> service.delete(id));
 
-            verify(repo).deleteChildren(id);
+            verify(repo).delete(task);
         }
 
         @Test
@@ -257,7 +257,7 @@ class TaskServiceTest {
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(id.toString());
 
-            verify(repo, never()).deleteChildren(any());
+            verify(repo, never()).delete(any(Task.class));
         }
     }
 }
