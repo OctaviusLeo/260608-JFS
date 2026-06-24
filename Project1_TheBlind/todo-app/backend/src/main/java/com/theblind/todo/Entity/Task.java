@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,7 +48,7 @@ public class Task {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonManagedReference
-    @OneToMany(mappedBy = "parentTask", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentTask", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> subtask;
 
     @ToString.Exclude

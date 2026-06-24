@@ -38,7 +38,12 @@ public class UserRegistrationTests {
     @BeforeEach
     public void setUp() throws InterruptedException {
         webClient = HttpClient.newHttpClient();
-        String[] args = new String[] {};
+        // Launch each per-test application instance under the H2 "test" profile so
+        // it runs against an isolated in-memory schema (recreated per context via
+        // create-drop) instead of the persistent SQLite todo.db. This keeps these
+        // tests independent of production data now that ddl-auto=update retains rows
+        // across restarts (Phase 5 persistence remediation, Req 2.2).
+        String[] args = new String[] {"--spring.profiles.active=test"};
         app = SpringApplication.run(TodoApplication.class, args);
         Thread.sleep(500);
     }
