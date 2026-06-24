@@ -55,7 +55,7 @@ export class RegistrationForm {
       return;
     }
 
-    // console.log('Registration Data Successfully Submitted:', this.registerForm.value);
+    console.log('Registration Data Successfully Submitted:', this.registerForm.value);
 
     const newUser: User = {
       username: this.registerForm.value.username,
@@ -65,12 +65,11 @@ export class RegistrationForm {
     this.registrationService.registerUser(newUser).subscribe({
       next: (response) => {
         this.createdUser = response;
-        // console.log('User created successfully:', response);
+        console.log('User created successfully:', response);
       },
       error: (error) => {
         this.errorMessage = 'Failed to create user.';
-        // console.error('API Error:', error);
-        alert("Error: Username or password must not contain spaces.");
+        console.error('API Error:', error);
       }
     });
   }
