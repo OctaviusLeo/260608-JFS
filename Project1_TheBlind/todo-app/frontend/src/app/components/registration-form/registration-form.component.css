@@ -120,6 +120,23 @@
   color: #ef4444; /* matches .is-invalid border color for visual consistency */
 }
 
+/* ── Success message block ───────────────────────────────────────────────────
+   .success-msg appears below the submit button after a successful registration
+   response. Green mirrors the conventional success colour and is consistent
+   with the red used for .error-msg, keeping the feedback palette symmetric.
+   The structure mirrors .error-msg so both feel like part of the same system.
+────────────────────────────────────────────────────────────────────────────── */
+.success-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.success-msg small {
+  font-size: 0.78rem;
+  color: #16a34a; /* green — universally recognised as a success colour */
+}
+
 /* ── Submit button ───────────────────────────────────────────────────────────
    Full-width indigo button that spans the card. font-weight 600 makes the
    label prominent. The 0.2s background-color transition smooths the hover
@@ -152,6 +169,13 @@
 ────────────────────────────────────────────────────────────────────────────── */
 .btn-submit:active {
   transform: scale(0.98);
+}
+
+/* ── Success Text ─────────────────────────────────────────────
+   Text appears when registration is successful.
+────────────────────────────────────────────────────────────────────────────── */
+.success-text {
+  color: rgb(59, 235, 43);
 }
 
 /* ── Small phones (≤ 480px) ──────────────────────────────────────────────────

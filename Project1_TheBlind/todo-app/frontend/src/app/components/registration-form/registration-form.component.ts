@@ -1,8 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RegistrationService } from '../../services/registration.service';
 import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { delay, tap } from 'rxjs';
 
 @Component({
   selector: 'app-registration-form',
@@ -14,11 +16,16 @@ export class RegistrationForm {
   createdUser: User | null = null;
   errorMessage: string | null = null;
   registerForm!: FormGroup;
-  isSubmitted = false;
+  isSubmitted: boolean = false;
+  isRegistered: boolean = false;
 
   private formBuilder = inject(FormBuilder);
 
+  private router = inject(Router);
+
   private registrationService = inject(RegistrationService);
+
+  private cdr = inject(ChangeDetectorRef);
 
   private characterValidationRegex: RegExp = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=(?:.*[^A-Za-z0-9]){2}).+$/;
 
@@ -55,21 +62,29 @@ export class RegistrationForm {
       return;
     }
 
-    console.log('Registration Data Successfully Submitted:', this.registerForm.value);
+    // console.log('Registration Data Successfully Submitted:', this.registerForm.value);
 
     const newUser: User = {
       username: this.registerForm.value.username,
       password: this.registerForm.value.password,
     };
 
-    this.registrationService.registerUser(newUser).subscribe({
+    this.registrationService.registerUser(newUser).pipe()
+      // if successful, show success text on form, wait two seconds, and then navigate to login page
+    .subscribe({
       next: (response) => {
         this.createdUser = response;
-        console.log('User created successfully:', response);
+        this.isRegistered = true;
+        this.cdr.detectChanges(); // force view update if response arrives outside Angular's zone
+        // console.log('User created successfully:', response);
+        setTimeout(() => this.router.navigate(['/login']), 2000); // brief pause so the user sees the success message
       },
       error: (error) => {
-        this.errorMessage = 'Failed to create user.';
-        console.error('API Error:', error);
+        // if unsuccessful, send alert about an error with server
+        // this.errorMessage = 'Failed to create user.';
+        // console.error('API Error:', error);
+        this.isSubmitted = true;
+        alert("There was an error with registering your information. Please try again.");
       }
     });
   }

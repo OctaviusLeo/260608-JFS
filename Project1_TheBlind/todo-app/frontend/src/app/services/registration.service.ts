@@ -11,12 +11,10 @@ export class RegistrationService {
     private httpClient = inject(HttpClient);
 
     registerUser(user: User): Observable<User> {
-        /*
         const headers = new HttpHeaders({ 
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
         });
-        */
         
         return this.httpClient.post<User>(this.registerAPIURL, user);
     }

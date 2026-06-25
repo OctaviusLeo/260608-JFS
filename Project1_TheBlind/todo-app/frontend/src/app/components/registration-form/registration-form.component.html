@@ -49,5 +49,10 @@
 
     <!-- Form Submit Action Button -->
     <button type="submit" class="btn-submit">Create Account</button>
+
+    <!-- Success message — shown only after a successful registration response -->
+    <div *ngIf="isRegistered" class="success-msg">
+      <small>Account created successfully! Redirecting to login page...</small>
+    </div>
   </form>
 </div>
