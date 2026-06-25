@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
@@ -44,11 +45,15 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     // marking jwtConfig and userDetailsService as 'final' causes TaskController tests to fail
-    // (still debugging to find out why)
+    // (the @WebMvcTest slice has no JWTConfig/UserDetailsService beans), so they are
+    // injected optionally: the full application context wires the real beans, while the
+    // web-layer test slice simply leaves them null without failing to start.
     /** Service responsible for JWT creation, parsing, and validation. */
+    @Autowired(required = false)
     private JWTConfig jwtConfig;
 
     /** Loads user details by username for token validation. */
+    @Autowired(required = false)
     private UserDetailsService userDetailsService;
 
     public JWTAuthenticationFilter(
@@ -135,13 +140,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
-            // Continue down the filter chain with the (now possibly authenticated) context
-            filterChain.doFilter(request, response);
-
         } catch (Exception exception) {
-            // Delegate any JWT parsing or authentication errors to Spring MVC's
-            // exception resolver so they are handled consistently (e.g. returning 401)
-            handlerExceptionResolver.resolveException(request, response, null, exception);
+            // The token is malformed, expired, or references a user that no longer
+            // exists (e.g. the database was recreated since the token was issued).
+            // Return 401 so the client clears its stale token and re-authenticates,
+            // instead of silently committing an empty 200 response with no body.
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired authentication token.");
+            return;
         }
+
+        // Continue down the filter chain with the (now possibly authenticated) context.
+        // Kept outside the try/catch so genuine downstream errors are not mistaken
+        // for authentication failures.
+        filterChain.doFilter(request, response);
     }
 }
