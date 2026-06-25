@@ -1,0 +1,92 @@
+/* ── Page layout wrapper ─────────────────────────────────────────────────────
+   .register-page fills the full viewport and stacks its children (the heading
+   and the registration form component) vertically using flexbox. Centering both
+   axes mirrors the approach used in .register-container inside the form
+   component, so the heading and card appear as one cohesive unit in the middle
+   of the screen. The same #f0f2f5 background is declared here so the page
+   background matches the form component's background regardless of render order.
+────────────────────────────────────────────────────────────────────────────── */
+.register-page {
+  display: flex;
+  flex-direction: column;    /* heading above the form card */
+  align-items: center;       /* horizontal centering */
+  justify-content: center;   /* vertical centering */
+  min-height: 100vh;         /* stretch to at least the full viewport height */
+  background-color: #f0f2f5; /* matches the form component's page background */
+  padding: 1rem;             /* breathing room on small viewports */
+}
+
+/* ── Page heading ────────────────────────────────────────────────────────────
+   The <h2> sits directly above the <app-registration-form> card. Its color
+   (#374151) is the same dark gray used for field labels in the form component,
+   keeping the palette consistent. font-weight 700 makes it clearly the page
+   title while remaining understated — it announces the page without competing
+   with the form card below it. The bottom margin creates a visual gap between
+   the heading and the card, matching the 1.25rem field-group gap used inside
+   the form. letter-spacing adds subtle openness to the heading text.
+────────────────────────────────────────────────────────────────────────────── */
+.register-heading {
+  margin: 0 0 1.25rem 0;      /* only bottom margin — top/side margins are 0 */
+  font-size: 1.6rem;           /* prominent but not oversized */
+  font-weight: 700;
+  color: #374151;              /* same dark gray as form labels for palette unity */
+  letter-spacing: 0.01em;      /* slight openness for readability */
+  text-align: center;
+}
+
+/* ── Login redirect link ─────────────────────────────────────────────────────
+   Sits below the form card for users who already have an account. The muted
+   gray text keeps it secondary to the form, while the indigo anchor color
+   matches the submit button and focus ring accent used throughout the page.
+────────────────────────────────────────────────────────────────────────────── */
+.login-redirect {
+  margin-top: 0.75rem;   /* small gap between the form card and this line */
+  font-size: 0.875rem;
+  color: #6b7280;        /* muted gray — secondary to the form content */
+  text-align: center;
+}
+
+.login-redirect a {
+  color: #6366f1;        /* indigo — matches the submit button and focus ring */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-redirect a:hover {
+  text-decoration: underline;
+}
+
+/* ── Small phones (≤ 480px) ──────────────────────────────────────────────────
+   On narrow viewports the centered layout still works but we reduce the heading
+   font size and tighten the gap between heading and card so nothing feels
+   cramped or oversized. justify-content switches to flex-start so the content
+   sits near the top rather than dead-center, which feels more natural when the
+   card nearly fills the screen height.
+────────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .register-page {
+    justify-content: flex-start; /* anchor content to the top on short/narrow screens */
+    padding-top: 2rem;           /* comfortable top breathing room from the status bar */
+  }
+
+  .register-heading {
+    font-size: 1.3rem;      /* slightly smaller so it doesn't dominate on narrow screens */
+    margin-bottom: 0.75rem; /* tighten the gap to the card */
+  }
+}
+
+/* ── Very small phones (≤ 360px) ─────────────────────────────────────────────
+   Devices like the iPhone SE (1st gen) or budget Android phones. Reduce the
+   heading further and strip horizontal padding on the page wrapper so the card
+   can use every available pixel of width.
+────────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .register-page {
+    padding: 1.5rem 0.5rem; /* minimal side padding — card fills almost full width */
+  }
+
+  .register-heading {
+    font-size: 1.1rem;      /* compact heading for very narrow screens */
+    margin-bottom: 0.5rem;
+  }
+}
