@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { LoginService } from '../../services/login-service';
 import { User } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
@@ -14,7 +14,9 @@ import { TokenStorage } from '../../core/auth/token-storage.service';
 })
 export class LoginForm {
   existingUser: User | null = null;
-  errorMessage: string | null = null;
+  // Signal so the failure message renders immediately when set from the async
+  // login callback (a plain property would only show on the next DOM event).
+  readonly errorMessage = signal<string | null>(null);
   loginForm!: FormGroup;
   isSubmitted = false;
 
@@ -39,6 +41,7 @@ export class LoginForm {
 
   onSubmit(): void {
     this.isSubmitted = true;
+    this.errorMessage.set(null);
 
     if (this.loginForm.invalid) {
       return;
@@ -56,14 +59,15 @@ export class LoginForm {
     this.loginService.loginUser(existingUser).subscribe({
       next: (response) => {
         console.log('User logged in successfully:', response);
-        // saved to local storage
-        //this.tokenStorage.setToken(response.token);
+        // Persist the JWT so the auth guard/interceptor can read it back.
+        // Without this the dashboard route guard bounces straight back to login.
+        this.tokenStorage.setToken(response.token);
         // all login info (including token timer, username, and id) saved as string of JSON object
-        //this.loginService.setLoginInfo(response);
+        this.loginService.setLoginInfo(response);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
-        this.errorMessage = 'Failed to login user.';
+        this.errorMessage.set('Invalid username or password. Please try again.');
         console.error('API Error:', error);
       }
     });
