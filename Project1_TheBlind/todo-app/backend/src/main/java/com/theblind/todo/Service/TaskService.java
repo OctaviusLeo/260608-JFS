@@ -84,6 +84,15 @@ public class TaskService {
      * @return a {@link List} of all {@link Task} objects
      */
     public List<Task> getAll() {
+        return repo.findAll();
+    }
+
+   /**
+     * Retrieves all tasks from the repository.
+     *
+     * @return a {@link List} of all {@link Task} objects by a given user
+     */
+    public List<Task> getAllByCurrentUser() {
         // The JWT filter already validated the token and stored the principal in
         // the SecurityContextHolder. Cast to User to access getId() directly —
         // no need to re-parse the token here.

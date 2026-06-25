@@ -45,7 +45,7 @@ public class UserLoginTests {
     public void setUp() throws IOException, InterruptedException {
         // set up application
         webClient = HttpClient.newHttpClient();
-        String[] args = new String[] {};
+        String[] args = new String[] {"--spring.profiles.active=test"};
         app = SpringApplication.run(TodoApplication.class, args);
 
         // populate database with John Doe
@@ -55,7 +55,14 @@ public class UserLoginTests {
                 .header("Content-Type", "application/json")
                 .header("Access-Control-Allow-Origin", "*")
                 .build();
-        webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> registerResponse = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
+
+        // fail fast if registration itself returned an error — no point running login tests
+        // against a database that doesn't contain the expected user
+        if (registerResponse.statusCode() != 201) {
+            throw new IllegalStateException("setUp registration failed with status "
+                + registerResponse.statusCode() + ": " + registerResponse.body());
+        }
 
         // sleep for half a second
         Thread.sleep(500);

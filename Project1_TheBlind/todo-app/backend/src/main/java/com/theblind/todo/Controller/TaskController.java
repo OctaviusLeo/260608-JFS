@@ -40,6 +40,16 @@ public class TaskController {
     }
 
     /**
+     * Retrieve all tasks.
+     *
+     * @return ResponseEntity containing a list of all {@link Task} objects from logged in user with HTTP status 200 (OK).
+     */
+    @GetMapping("/current_user")
+    public ResponseEntity<List<Task>> getAllTasksByCurrentUser() {
+        return ResponseEntity.ok(taskService.getAllByCurrentUser());
+    }
+
+    /**
      * Create a new task.
      *
      * @param task the task to create (bound from the request body)
