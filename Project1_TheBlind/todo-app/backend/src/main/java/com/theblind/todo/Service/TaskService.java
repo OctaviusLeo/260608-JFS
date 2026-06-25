@@ -84,7 +84,18 @@ public class TaskService {
      * @return a {@link List} of all {@link Task} objects
      */
     public List<Task> getAll() {
-        return repo.findAll();
+        // The JWT filter already validated the token and stored the principal in
+        // the SecurityContextHolder. Cast to User to access getId() directly —
+        // no need to re-parse the token here.
+        UUID userId = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            User currentUser = (User) authentication.getPrincipal();
+            userId = currentUser.getId();
+            return repo.findByUserId(userId);
+        }
+
+        return List.of();
     }
 
    /**
