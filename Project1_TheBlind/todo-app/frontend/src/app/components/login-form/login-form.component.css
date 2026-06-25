@@ -1,8 +1,8 @@
 /* ── Page wrapper ────────────────────────────────────────────────────────────
    Centers the form card in the viewport. Background uses --color-page-bg so
-   the form page matches the app-wide background token (supports light/dark).
+   the login page matches the app-wide background token (supports light/dark).
 ────────────────────────────────────────────────────────────────────────────── */
-.register-container {
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,10 +13,10 @@
 
 /* ── Form card ───────────────────────────────────────────────────────────────
    Uses the .surface token pattern (--color-surface, --color-border,
-   --shadow-subtle, --radius-lg) so the card is visually consistent with the
-   dashboard card. max-width 420px prevents over-stretching on wide screens.
+   --shadow-pronounced, --radius-lg) so the card is visually consistent with
+   the dashboard card and the registration form card.
 ────────────────────────────────────────────────────────────────────────────── */
-.register-container form {
+.login-container form {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -50,18 +50,18 @@
 
 /* ── Input overrides ─────────────────────────────────────────────────────────
    Global input styles in styles.css already handle border, focus ring, and
-   background via tokens. We only override properties that need to differ for
-   this form (full width, no flex-grow shrink inside a flex column).
+   background via tokens. We only set width and box-sizing so the input fills
+   the card without overflowing the column flex container.
 ────────────────────────────────────────────────────────────────────────────── */
 .form-group input {
   width: 100%;
-  box-sizing: border-box; /* include padding/border in the 100% width calculation */
-  flex-grow: 0;           /* prevent stretching in the column flex container */
+  box-sizing: border-box;
+  flex-grow: 0;
 }
 
 /* ── Invalid input state (applied via Angular [ngClass] binding) ─────────────
-   Swaps the border to --color-error. The focus ring is also overridden so the
-   error state persists when the user clicks into the field to correct it.
+   Swaps the border to --color-error and keeps the error-tinted focus ring
+   so the invalid state persists when the user clicks back into the field.
 ────────────────────────────────────────────────────────────────────────────── */
 .form-group input.is-invalid {
   border-color: var(--color-error);
@@ -87,25 +87,9 @@
   color: var(--color-error);
 }
 
-/* ── Success message block ───────────────────────────────────────────────────
-   Mirrors .error-msg structure but uses --color-success. Appears below the
-   submit button after a successful registration response.
-────────────────────────────────────────────────────────────────────────────── */
-.success-msg {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.success-msg small {
-  font-size: var(--font-size-xs);
-  color: var(--color-success);
-}
-
 /* ── Submit button ───────────────────────────────────────────────────────────
-   Uses the global .btn-primary token class behavior but scoped here so the
-   form doesn't need to add the utility class in the template. Accent color,
-   hover, and active states all inherit from the token system.
+   Accent color, hover, and active states use the same tokens as .btn-primary
+   in styles.css and the registration form submit button.
 ────────────────────────────────────────────────────────────────────────────── */
 .btn-submit {
   margin-top: var(--space-2);
@@ -141,7 +125,7 @@
    (≥ 16px) to prevent iOS Safari from auto-zooming the viewport on focus.
 ────────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .register-container form {
+  .login-container form {
     padding: var(--space-6) var(--space-4);
     gap: var(--space-3);
   }
@@ -154,8 +138,7 @@
     font-size: 1rem; /* hard minimum of 16px prevents iOS Safari zoom on focus */
   }
 
-  .error-msg small,
-  .success-msg small {
+  .error-msg small {
     font-size: var(--font-size-sm);
   }
 
@@ -170,10 +153,10 @@
    Scale input text up slightly for comfortable reading on narrow displays.
 ────────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 360px) {
-  .register-container form {
+  .login-container form {
     padding: var(--space-4) var(--space-3);
     gap: var(--space-2);
-    border-radius: var(--radius-md); /* less rounding looks better near screen edges */
+    border-radius: var(--radius-md);
   }
 
   .form-group input {

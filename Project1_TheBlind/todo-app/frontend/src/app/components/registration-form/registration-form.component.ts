@@ -62,7 +62,7 @@ export class RegistrationForm {
       return;
     }
 
-    // console.log('Registration Data Successfully Submitted:', this.registerForm.value);
+    //console.log('Registration Data Successfully Submitted:', this.registerForm.value);
 
     const newUser: User = {
       username: this.registerForm.value.username,
@@ -76,14 +76,14 @@ export class RegistrationForm {
         this.createdUser = response;
         this.isRegistered = true;
         this.cdr.detectChanges(); // force view update if response arrives outside Angular's zone
-        // console.log('User created successfully:', response);
+        //console.log('User created successfully:', response);
         setTimeout(() => this.router.navigate(['/login']), 2000); // brief pause so the user sees the success message
       },
       error: (error) => {
         // if unsuccessful, send alert about an error with server
-        // this.errorMessage = 'Failed to create user.';
-        // console.error('API Error:', error);
-        this.isSubmitted = true;
+        //this.errorMessage = 'Failed to create user.';
+        //console.error('API Error:', error);
+        this.isSubmitted = false;
         alert("There was an error with registering your information. Please try again.");
       }
     });
