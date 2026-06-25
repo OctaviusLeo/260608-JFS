@@ -73,7 +73,7 @@ public class AccountService {
         if (optionalAccount.isPresent()) {
             if (passwordEncoder.matches(password, optionalAccount.get().getPassword())) {
                 loggedInAccount = optionalAccount.get();
-                // authentication happens after user is confirmed to exist in databaseS
+                // authentication happens after user is confirmed to exist in database
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
                                 username,
@@ -179,7 +179,7 @@ public class AccountService {
         boolean hasSpecialChars = false;
 
         // list of special chars, casted into string for search purposes
-        final char[] SPECIAL_CHARS = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".toCharArray();
+        final char[] SPECIAL_CHARS = {'*', '+', '-', '/', '=', '_', '{', '}', '[', ']', '|', '\\', ':', ';', '"', '\'', '<', '>', ',', '.', '?', '~', '`'};
         String specialCharsString = new String(SPECIAL_CHARS);
         // at least two special characters must be found
         int specialCharCount = 2;

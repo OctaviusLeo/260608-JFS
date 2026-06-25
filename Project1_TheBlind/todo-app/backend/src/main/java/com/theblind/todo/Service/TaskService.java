@@ -60,8 +60,10 @@ public class TaskService {
         // the SecurityContextHolder. Cast to User to access getId() directly —
         // no need to re-parse the token here.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        newTask.setUser(currentUser);
+        if (authentication != null) {
+            User currentUser = (User) authentication.getPrincipal();
+            newTask.setUser(currentUser);
+        }
 
         return repo.save(newTask);
     }
