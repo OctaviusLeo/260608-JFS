@@ -6,9 +6,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: var(--color-page-bg);
-  padding: var(--space-4);
 }
 
 /* ── Form card ───────────────────────────────────────────────────────────────
