@@ -32,17 +32,17 @@
     }
 
     <span class="task-actions">
-      <button type="button" class="icon-btn" (click)="startEdit()" title="Rename task">edit</button>
-      <button type="button" class="icon-btn" (click)="toggleAddSubtask()" title="Add subtask">
+      <button type="button" class="btn-ghost" (click)="startEdit()" title="Rename task">edit</button>
+      <button type="button" class="btn-ghost" (click)="toggleAddSubtask()" title="Add subtask">
         +
       </button>
-      <button type="button" class="icon-btn delete" (click)="onDelete()" title="Delete task">
+      <button type="button" class="btn-ghost delete" (click)="onDelete()" title="Delete task">
         &times;
       </button>
     </span>
   </div>
 
-  @if (showAddSubtask()) {
+  <div class="subtask-form-wrapper" [class.open]="showAddSubtask()">
     <div class="subtask-form">
       <input
         type="text"
@@ -52,9 +52,9 @@
         placeholder="New subtask"
         maxlength="50"
       />
-      <button type="button" class="add-btn" (click)="onAddSubtask()">Add</button>
+      <button type="button" class="btn-primary" (click)="onAddSubtask()">Add</button>
     </div>
-  }
+  </div>
 
   @if (task().children.length) {
     <ul class="task-tree">
