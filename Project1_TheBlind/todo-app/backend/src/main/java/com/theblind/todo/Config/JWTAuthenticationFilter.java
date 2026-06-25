@@ -52,14 +52,29 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     public JWTAuthenticationFilter(
-            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
-            JWTConfig jwtConfig,
-            UserDetailsService userDetailsService
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
     ) {
         this.handlerExceptionResolver = handlerExceptionResolver;
-        this.jwtConfig = jwtConfig;
-        this.userDetailsService = userDetailsService;
     }
+    /**
+     * Tells Spring to skip this filter entirely for public authentication
+     * endpoints. Requests to /api/register and /api/auth/login do not carry
+     * a JWT — they are the requests that produce one — so running JWT
+     * validation on them would always fail or be meaningless.
+     *
+     * @param request the incoming HTTP request
+     * @return true if the filter should be bypassed for this request
+     * @throws ServletException if a servlet error occurs
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // Bypass JWT validation for registration and login — these routes are
+        // also marked permitAll() in GlobalSecurityConfig, but skipping the
+        // filter here avoids unnecessary token parsing work entirely.
+        return path.equals("/api/register") || path.equals("/api/auth/login");
+    }
+
     /**
      * Core filter logic. Runs once per request to authenticate the caller via JWT.
      *

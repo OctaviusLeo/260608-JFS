@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { TaskService } from '../../services/task.service';
 import { TaskItemComponent } from '../../components/task-item/task-item.component';
 import { Task, TaskNode } from '../../models/task.model';
