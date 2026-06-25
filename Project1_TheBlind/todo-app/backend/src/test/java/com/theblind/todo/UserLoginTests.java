@@ -82,10 +82,12 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_CORRECT))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
-        Assertions.assertEquals(200, status, "Expected Status Code 200 - Actual Code was: " + status);
+        Assertions.assertEquals(200, status, "Expected Status Code 200 - Actual Code was: " + response);
     }
 
     /**
@@ -217,6 +219,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_CORRECT))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
