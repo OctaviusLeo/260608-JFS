@@ -69,7 +69,7 @@ public class User implements UserDetails {
     }
 
     // retrieves user id
-    public UUID getUserId() {
+    public UUID getId() {
         return id;
     }
 

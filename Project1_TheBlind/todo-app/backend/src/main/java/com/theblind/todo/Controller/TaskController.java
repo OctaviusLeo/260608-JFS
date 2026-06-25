@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
-    private final String requestOriginURL = "http://localhost:4200";
+    private final String REQUEST_ORIGIN_URL = "http://localhost:4200";
 
     /**
      * Retrieve all tasks.
@@ -58,7 +58,7 @@ public class TaskController {
      * @return ResponseEntity containing the {@link Task} and HTTP status 200 (OK) if found,
      *         or HTTP status 404 (Not Found) if the task does not exist.
      */
-    @CrossOrigin(origins = requestOriginURL)
+    @CrossOrigin(origins = REQUEST_ORIGIN_URL)
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable UUID id) {
         return taskService.get(id)
@@ -75,7 +75,7 @@ public class TaskController {
      *         or HTTP status 404 (Not Found) if no task with the given id exists.
      * @throws IllegalArgumentException if the provided input is invalid (handled by GlobalExceptionHandler)
      */
-    @CrossOrigin(origins = requestOriginURL)
+    @CrossOrigin(origins = REQUEST_ORIGIN_URL)
     @PatchMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable UUID id, @RequestBody Task task) {
         task.setId(id);
@@ -91,7 +91,7 @@ public class TaskController {
      * @return ResponseEntity with HTTP status 204 (No Content) when deletion succeeds.
      * @throws EntityNotFoundException if the task does not exist (handled by GlobalExceptionHandler)
      */
-    @CrossOrigin(origins = requestOriginURL)
+    @CrossOrigin(origins = REQUEST_ORIGIN_URL)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
         taskService.delete(id);
