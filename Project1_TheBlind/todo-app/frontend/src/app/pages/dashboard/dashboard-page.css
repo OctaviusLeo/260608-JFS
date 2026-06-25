@@ -15,8 +15,7 @@
 
 /* ── Logout button ───────────────────────────────────────────────────────────
    Secondary/outline styling so it's clearly an action without competing with
-   the primary "Add" button. Clearing the JWT and routing to /login lets the
-   route guard demonstrate that the dashboard is unreachable when logged out.
+   the primary "Add" button.
 ────────────────────────────────────────────────────────────────────────────── */
 .btn-logout {
   flex-shrink: 0;
@@ -35,7 +34,7 @@
 }
 
 .btn-logout:hover {
-  background-color: var(--color-page-bg);
+  background-color: var(--color-accent-subtle);
   color: var(--color-text);
 }
 
