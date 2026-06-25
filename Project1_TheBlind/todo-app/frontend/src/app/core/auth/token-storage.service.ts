@@ -31,4 +31,45 @@ export class TokenStorage {
   hasToken(): boolean {
     return this.getToken() !== null;
   }
+
+  /**
+   * True only when a token is present AND its JWT `exp` claim is still in the
+   * future. A leftover/expired token from a previous session (the backend
+   * expires tokens after 1 hour) is treated as not authenticated.
+   *
+   * Decoding is best-effort: a malformed token is considered invalid.
+   */
+  hasValidToken(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    const expSeconds = this.getExpiry(token);
+    if (expSeconds === null) {
+      // No/unparsable expiry claim -> can't trust it.
+      return false;
+    }
+    // `exp` is in seconds since epoch; Date.now() is milliseconds.
+    return expSeconds * 1000 > Date.now();
+  }
+
+  /**
+   * Reads the `exp` (expiry) claim from a JWT's payload without verifying the
+   * signature (validation of authenticity stays server-side). Returns the
+   * expiry in seconds since epoch, or null if it can't be read.
+   */
+  private getExpiry(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return null;
+      }
+      // JWT uses base64url; convert to standard base64 before decoding.
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const json = JSON.parse(atob(base64));
+      return typeof json.exp === 'number' ? json.exp : null;
+    } catch {
+      return null;
+    }
+  }
 }

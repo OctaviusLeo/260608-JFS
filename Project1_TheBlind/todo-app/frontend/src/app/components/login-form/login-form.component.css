@@ -87,6 +87,16 @@
   color: var(--color-error);
 }
 
+/* ── Login failure message ───────────────────────────────────────────────────
+   Shown below the submit button when the API rejects the credentials. Centered
+   and given a little breathing room so it reads as a form-level error rather
+   than a per-field validation note.
+────────────────────────────────────────────────────────────────────────────── */
+.login-error {
+  margin-top: var(--space-2);
+  text-align: center;
+}
+
 /* ── Submit button ───────────────────────────────────────────────────────────
    Accent color, hover, and active states use the same tokens as .btn-primary
    in styles.css and the registration form submit button.

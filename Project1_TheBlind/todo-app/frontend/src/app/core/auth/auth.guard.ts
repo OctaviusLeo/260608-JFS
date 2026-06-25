@@ -11,11 +11,15 @@ import { TokenStorage } from './token-storage.service';
  */
 export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
+  const tokenStorage = inject(TokenStorage);
 
-  if (inject(TokenStorage).hasToken()) {
+  if (tokenStorage.hasValidToken()) {
     return true;
   }
 
-  // Not authenticated -> send them to login instead.
+  // No token, or a stale/expired one left over from a previous session.
+  // Clear it so the interceptor doesn't keep sending a dead token, then
+  // send the user to login.
+  tokenStorage.clear();
   return router.createUrlTree(['/login']);
 };

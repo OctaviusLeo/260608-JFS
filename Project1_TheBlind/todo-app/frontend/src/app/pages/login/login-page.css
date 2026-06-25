@@ -34,6 +34,29 @@
   text-align: center;
 }
 
+/* ── Register redirect link ──────────────────────────────────────────────────
+   Sits below the form card for users who don't yet have an account. Mirrors the
+   .login-redirect styling on the register page: muted gray text keeps it
+   secondary to the form, while the indigo anchor color matches the submit
+   button and focus ring accent used throughout the page.
+────────────────────────────────────────────────────────────────────────────── */
+.register-redirect {
+  margin-top: 0.75rem;   /* small gap between the form card and this line */
+  font-size: 0.875rem;
+  color: #6b7280;        /* muted gray — secondary to the form content */
+  text-align: center;
+}
+
+.register-redirect a {
+  color: #6366f1;        /* indigo — matches the submit button and focus ring */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-redirect a:hover {
+  text-decoration: underline;
+}
+
 /* ── Small phones (≤ 480px) ──────────────────────────────────────────────────
    On narrow viewports the centered layout still works but we reduce the heading
    font size and tighten the gap between heading and card so nothing feels

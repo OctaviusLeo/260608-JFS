@@ -29,5 +29,10 @@
 
     <!-- Form Submit Action Button -->
     <button type="submit" class="btn-submit">Login</button>
+
+    <!-- Login failure message — shown when the API rejects the credentials -->
+    <div *ngIf="errorMessage()" class="error-msg login-error">
+      <small>{{ errorMessage() }}</small>
+    </div>
   </form>
 </div>
