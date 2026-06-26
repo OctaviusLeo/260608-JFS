@@ -8,8 +8,6 @@ import com.theblind.todo.Exception.LoginFailureException;
 import org.springframework.stereotype.Service;
 import com.theblind.todo.Service.AccountService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.util.Map;
 import java.util.List;
@@ -19,14 +17,11 @@ import java.util.Optional;
 public class AccountService {
     private final AccountRepo accountRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
-    private final AuthenticationManager authenticationManager;    
+    private final PasswordEncoder passwordEncoder; 
     
-    public AccountService(AccountRepo accountRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    public AccountService(AccountRepo accountRepository, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
     }
 
     /**
@@ -73,13 +68,6 @@ public class AccountService {
         if (optionalAccount.isPresent()) {
             if (passwordEncoder.matches(password, optionalAccount.get().getPassword())) {
                 loggedInAccount = optionalAccount.get();
-                // authentication happens after user is confirmed to exist in databaseS
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                username,
-                                password
-                        )
-                );
             }
         }
 

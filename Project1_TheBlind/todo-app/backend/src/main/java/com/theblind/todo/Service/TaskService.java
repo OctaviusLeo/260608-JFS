@@ -7,7 +7,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.theblind.todo.Entity.Task;
+import com.theblind.todo.Entity.User;
 import com.theblind.todo.Repo.TaskRepo;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import com.theblind.todo.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +52,19 @@ public class TaskService {
             throw new IllegalArgumentException("Task Content cannot be blank");
         }
 
+        if(newTask.getTaskContent().length() > 50) {
+            throw new IllegalArgumentException("Task Content cannot be longer than 50 characters");
+        }
+
+        // The JWT filter already validated the token and stored the principal in
+        // the SecurityContextHolder. Cast to User to access getId() directly —
+        // no need to re-parse the token here.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            User currentUser = (User) authentication.getPrincipal();
+            newTask.setUser(currentUser);
+        }
+
         return repo.save(newTask);
     }
 
@@ -68,6 +85,26 @@ public class TaskService {
      */
     public List<Task> getAll() {
         return repo.findAll();
+    }
+
+   /**
+     * Retrieves all tasks from the repository.
+     *
+     * @return a {@link List} of all {@link Task} objects by a given user
+     */
+    public List<Task> getAllByCurrentUser() {
+        // The JWT filter already validated the token and stored the principal in
+        // the SecurityContextHolder. Cast to User to access getId() directly —
+        // no need to re-parse the token here.
+        UUID userId = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            User currentUser = (User) authentication.getPrincipal();
+            userId = currentUser.getId();
+            return repo.findByUserId(userId);
+        }
+
+        return List.of();
     }
 
    /**

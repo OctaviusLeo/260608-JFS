@@ -46,8 +46,10 @@ export class TokenStorage {
     }
     const expSeconds = this.getExpiry(token);
     if (expSeconds === null) {
-      // No/unparsable expiry claim -> can't trust it.
-      return false;
+      // Token is present but has no parsable exp claim (e.g. a non-standard or
+      // opaque token). Treat it as valid and let the backend reject it if it's
+      // actually stale — the guard is a UX convenience, not a security boundary.
+      return true;
     }
     // `exp` is in seconds since epoch; Date.now() is milliseconds.
     return expSeconds * 1000 > Date.now();

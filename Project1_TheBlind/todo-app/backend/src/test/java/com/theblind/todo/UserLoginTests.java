@@ -45,7 +45,7 @@ public class UserLoginTests {
     public void setUp() throws IOException, InterruptedException {
         // set up application
         webClient = HttpClient.newHttpClient();
-        String[] args = new String[] {};
+        String[] args = new String[] {"--spring.profiles.active=test"};
         app = SpringApplication.run(TodoApplication.class, args);
 
         // populate database with John Doe
@@ -53,8 +53,16 @@ public class UserLoginTests {
                 .uri(URI.create(REGISTRATION_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_CORRECT))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
                 .build();
-        webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> registerResponse = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
+
+        // fail fast if registration itself returned an error — no point running login tests
+        // against a database that doesn't contain the expected user
+        if (registerResponse.statusCode() != 201) {
+            throw new IllegalStateException("setUp registration failed with status "
+                + registerResponse.statusCode() + ": " + registerResponse.body());
+        }
 
         // sleep for half a second
         Thread.sleep(500);
@@ -87,7 +95,7 @@ public class UserLoginTests {
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
-        Assertions.assertEquals(200, status, "Expected Status Code 200 - Actual Code was: " + response);
+        Assertions.assertEquals(200, status, "Expected Status Code 200 - Actual Code was: " + status);
     }
 
     /**
@@ -103,6 +111,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_INCORRECT_NAME))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
@@ -122,6 +132,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_INCORRECT_PASSWORD))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
@@ -141,6 +153,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_INCORRECT_NAME_AND_PASSWORD))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
@@ -160,6 +174,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_NULL_NAME))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
@@ -179,6 +195,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_NULL_PASSWORD))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
@@ -198,6 +216,8 @@ public class UserLoginTests {
                 .uri(URI.create(LOGIN_API))
                 .POST(HttpRequest.BodyPublishers.ofString(JSON_JOHN_DOE_NULL_NAME_AND_PASSWORD))
                 .header("Content-Type", "application/json")
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Credentials", "true")
                 .build();
         HttpResponse<String> response = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
