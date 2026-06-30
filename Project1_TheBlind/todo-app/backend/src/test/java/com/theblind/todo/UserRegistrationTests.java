@@ -45,14 +45,12 @@ public class UserRegistrationTests {
         // across restarts (Phase 5 persistence remediation, Req 2.2).
         String[] args = new String[] {"--spring.profiles.active=test"};
         app = SpringApplication.run(TodoApplication.class, args);
-        Thread.sleep(500);
     }
     /**
      * After every test, exit the application.
      */
     @AfterEach
     public void tearDown() throws InterruptedException {
-    	Thread.sleep(500);
     	SpringApplication.exit(app);
     }
 
