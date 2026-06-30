@@ -45,14 +45,12 @@ public class UserRegistrationTests {
         // across restarts (Phase 5 persistence remediation, Req 2.2).
         String[] args = new String[] {"--spring.profiles.active=test"};
         app = SpringApplication.run(TodoApplication.class, args);
-        Thread.sleep(500);
     }
     /**
      * After every test, exit the application.
      */
     @AfterEach
     public void tearDown() throws InterruptedException {
-    	Thread.sleep(500);
     	SpringApplication.exit(app);
     }
 
@@ -64,6 +62,7 @@ public class UserRegistrationTests {
      *  Status Code: 201
      */
     @Test
+    @DisplayName("Successful registration")
     public void registerUserSuccessful() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -83,6 +82,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - duplicate username")
     public void registerUserDuplicateUsername() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -105,6 +105,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - invalid username")
     public void registerUserInvalidUsername() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -124,6 +125,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - invalid password")
     public void registerUserInvalidPassword() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -143,6 +145,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - invalid username and invalid password")
     public void registerUserInvalidUsernameAndPassword() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -162,6 +165,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - null username")
     public void registerUserNullUsername() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -181,6 +185,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - null password")
     public void registerUserNullPassword() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))
@@ -201,6 +206,7 @@ public class UserRegistrationTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful registration - null username and null password")
     public void registerUserNullUsernameAndPassword() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(REGISTRATION_API))

@@ -63,9 +63,6 @@ public class UserLoginTests {
             throw new IllegalStateException("setUp registration failed with status "
                 + registerResponse.statusCode() + ": " + registerResponse.body());
         }
-
-        // sleep for half a second
-        Thread.sleep(500);
     }
 
     /**
@@ -73,7 +70,6 @@ public class UserLoginTests {
      */
     @AfterEach
     public void tearDown() throws InterruptedException {
-    	Thread.sleep(500);
     	SpringApplication.exit(app);
     }
 
@@ -85,6 +81,7 @@ public class UserLoginTests {
      *  Status Code: 200
      */
     @Test
+    @DisplayName("Successful login")
     public void loginSuccessful() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -106,6 +103,7 @@ public class UserLoginTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful login - user does not exist")
     public void loginUserDoesNotExist() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -127,6 +125,7 @@ public class UserLoginTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful login - incorrect password")
     public void loginPasswordIncorrect() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -148,6 +147,7 @@ public class UserLoginTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful login - user does not exist and incorrect password")
     public void loginNameAndPasswordIncorrect() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -169,6 +169,7 @@ public class UserLoginTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful login - null username")
     public void loginNullName() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -190,6 +191,7 @@ public class UserLoginTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful login - null password")
     public void loginNullPassword() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -211,6 +213,7 @@ public class UserLoginTests {
      *  Status Code: 400
      */
     @Test
+    @DisplayName("Unsuccessful login - null username and null password")
     public void loginNullNameAndPassword() throws IOException, InterruptedException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))
@@ -234,6 +237,7 @@ public class UserLoginTests {
      *  Body: Contains non-blank 'token' and 'expiresIn' fields
      */
     @Test
+    @DisplayName("Successful login, authentication successful")
     public void authenticationSuccessful() throws IOException, InterruptedException, JSONException {
     	HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(URI.create(LOGIN_API))

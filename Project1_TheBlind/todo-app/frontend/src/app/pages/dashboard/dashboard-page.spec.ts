@@ -6,7 +6,7 @@ import { DashboardPage } from './dashboard-page';
 import { Task, TaskNode } from '../../models/task.model';
 
 describe('DashboardPage', () => {
-  const BASE = '/api/tasks';
+  const BASE = '/api/tasks/current_user';
   let fixture: ComponentFixture<DashboardPage>;
   let component: DashboardPage;
   let httpMock: HttpTestingController;

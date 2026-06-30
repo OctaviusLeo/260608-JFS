@@ -20,7 +20,7 @@ describe('TaskService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('getTasks() issues GET /api/tasks', () => {
+  it('getTasks() issues GET /api/tasks/current_user', () => {
     const mock: Task[] = [
       { id: 'a', taskContent: 'Root', parent_task_id: null, isComplete: false },
     ];
@@ -33,6 +33,21 @@ describe('TaskService', () => {
     req.flush(mock);
     expect(result).toEqual(mock);
   });
+
+  it('getAllTasks() issues GET /api/tasks/', () => {
+    const mock: Task[] = [
+      { id: 'a', taskContent: 'Root', parent_task_id: null, isComplete: false },
+    ];
+    let result: Task[] | undefined;
+
+    service.getAllTasks().subscribe((r) => (result = r));
+
+    const req = httpMock.expectOne(BASE);
+    expect(req.request.method).toBe('GET');
+    req.flush(mock);
+    expect(result).toEqual(mock);
+  });
+
 
   it('getTask(id) issues GET /api/tasks/{id}', () => {
     const mock: Task = { id: 'x', taskContent: 'One', parent_task_id: null, isComplete: true };
