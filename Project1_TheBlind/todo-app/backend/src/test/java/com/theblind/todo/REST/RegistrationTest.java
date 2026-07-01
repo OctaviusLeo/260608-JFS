@@ -1,31 +1,20 @@
 package com.theblind.todo.REST;
 
-import com.theblind.todo.TodoApplication;
 import com.theblind.todo.Entity.User;
 
 // RESTAssured Team reccommends these imports for ease of framework use
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
-import net.minidev.json.JSONObject;
 
 // tells app that, during testing, for this class, the web environment is actually real
 // real and during testing, it  is listening on a random port
