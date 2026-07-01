@@ -2,7 +2,6 @@ package com.theblind.todo.REST;
 
 import com.theblind.todo.Entity.User;
 import com.theblind.todo.Repo.AccountRepo;
-import com.theblind.todo.Entity.Task;
 import com.theblind.todo.Repo.TaskRepo;
 
 // RESTAssured Team reccommends these imports for ease of framework use
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.TestPropertySource;
 
 import io.restassured.RestAssured;
@@ -25,10 +23,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // tells app that, during testing, for this class, the web environment is actually real
