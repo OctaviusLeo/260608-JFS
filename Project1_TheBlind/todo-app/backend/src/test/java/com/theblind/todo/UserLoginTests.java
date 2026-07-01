@@ -63,9 +63,6 @@ public class UserLoginTests {
             throw new IllegalStateException("setUp registration failed with status "
                 + registerResponse.statusCode() + ": " + registerResponse.body());
         }
-
-        // sleep for half a second
-        Thread.sleep(500);
     }
 
     /**
@@ -73,7 +70,6 @@ public class UserLoginTests {
      */
     @AfterEach
     public void tearDown() throws InterruptedException {
-    	Thread.sleep(500);
     	SpringApplication.exit(app);
     }
 
