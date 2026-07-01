@@ -35,32 +35,32 @@ public class RegistrationTest {
     }
 
     @Test
-    @DisplayName("Successful user registration")
-    void registerUserSuccess() {
-        User testUser1, testUser2;
-
-        // minimum 5 chars
-        testUser1 = new User();
-        testUser1.setUsername("john_");
-        testUser1.setPassword("Ac**4");
-
-        // maximum 15 chars
-        testUser2 = new User();
-        testUser2.setUsername("john_doe_wkivnd");
-        testUser2.setPassword("Abc**4wowmespal");
+    @DisplayName("Successful user registration - minimum chars")
+    void registerUserSuccess1() {
+        User testUser = new User();
+        testUser.setUsername("john_");
+        testUser.setPassword("Ac**4");
 
         given().
             contentType(ContentType.JSON).
-            body(testUser1).
+            body(testUser).
             when().
                 post("/register").
             then().
                 statusCode(201).
                 body("username", equalTo("john_"));
+    }
+
+    @Test
+    @DisplayName("Successful user registration - maximum chars")
+    void registerUserSuccess2() {
+        User testUser = new User();
+        testUser.setUsername("john_doe_wkivnd");
+        testUser.setPassword("Abc**4wowmespal");
 
         given().
             contentType(ContentType.JSON).
-            body(testUser2).
+            body(testUser).
             when().
                 post("/register").
             then().
@@ -69,51 +69,82 @@ public class RegistrationTest {
     }
 
     @Test
-    @DisplayName("Unsuccessful registration: Invalid username")
-    void registerUserInvalidUsername() {
-        User testUser1, testUser2, testUser3, testUser4, testUser5;
+    @DisplayName("Unsuccessful registration: Username below minimum chars")
+    void registerUserInvalidUsername1() {
+        User testUser = new User();
+        testUser.setUsername("john");
+        testUser.setPassword("Abc**4");
 
-        // 4 chars (just below minimum)
-        testUser1 = new User();
-        testUser1.setUsername("john");
-        testUser1.setPassword("Abc**4");
+        given().
+            contentType(ContentType.JSON).
+            body(testUser).
+            when().
+                post("/register").
+            then().
+                statusCode(400);
+    }
 
-        // 16 chars (just above maximum)
-        testUser2 = new User();
-        testUser2.setUsername("john_doe_wkivndq");
-        testUser2.setPassword("Abc**4");
+    @Test
+    @DisplayName("Unsuccessful registration: Username above maximum chars")
+    void registerUserInvalidUsername2() {
+        User testUser = new User();
+        testUser.setUsername("john_doeqpskjdir");
+        testUser.setPassword("Abc**4");
 
-        // spaces included
-        testUser3 = new User();
-        testUser3.setUsername("john_   ");
-        testUser3.setPassword("Abc**4");
+        given().
+            contentType(ContentType.JSON).
+            body(testUser).
+            when().
+                post("/register").
+            then().
+                statusCode(400);
+    }
 
-        // empty
-        testUser4 = new User();
-        testUser4.setUsername("");
-        testUser4.setPassword("Abc**4");
-    
-        // null
-        testUser5 = new User();
-        testUser5.setUsername("");
-        testUser5.setPassword("Abc**4");
+    @Test
+    @DisplayName("Unsuccessful registration: Username contains spaces")
+    void registerUserInvalidUsername3() {
+        User testUser = new User();
+        testUser.setUsername("john doe");
+        testUser.setPassword("Abc**4");
 
-        User[] users = {
-            testUser1,
-            testUser2,
-            testUser3,
-            testUser4,
-            testUser5
-        };
+        given().
+            contentType(ContentType.JSON).
+            body(testUser).
+            when().
+                post("/register").
+            then().
+                statusCode(400);
+    }
 
-        for (int i = 0; i < users.length; i++) {
-            given().
-                contentType(ContentType.JSON).
-                body(users[i]).
-                when().
-                    post("/register").
-                then().
-                    statusCode(400);
-        }
+    @Test
+    @DisplayName("Unsuccessful registration: Username is null")
+    void registerUserInvalidUsername4() {
+        User testUser = new User();
+        testUser.setUsername(null);
+        testUser.setPassword("Abc**4");
+
+        given().
+            contentType(ContentType.JSON).
+            body(testUser).
+            when().
+                post("/register").
+            then().
+                statusCode(400);
+    }
+
+    @Test
+    @DisplayName("Unsuccessful registration: Username is empty")
+    void registerUserInvalidUsername5() {
+        User testUser = new User();
+        testUser.setUsername("     ");
+        testUser.setPassword("Abc**4");
+
+        given().
+            contentType(ContentType.JSON).
+            body(testUser).
+            when().
+                post("/register").
+            then().
+                statusCode(400);
     }
 }
