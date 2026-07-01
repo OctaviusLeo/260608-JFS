@@ -81,15 +81,6 @@ public class TaskService {
    /**
      * Retrieves all tasks from the repository.
      *
-     * @return a {@link List} of all {@link Task} objects
-     */
-    public List<Task> getAll() {
-        return repo.findAll();
-    }
-
-   /**
-     * Retrieves all tasks from the repository.
-     *
      * @return a {@link List} of all {@link Task} objects by a given user
      */
     public List<Task> getAllByCurrentUser() {

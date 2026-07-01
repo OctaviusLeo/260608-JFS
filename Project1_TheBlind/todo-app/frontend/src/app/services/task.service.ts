@@ -24,14 +24,9 @@ export class TaskService {
 
   private readonly BASE_URL = '/api/tasks';
 
-  /** GET /api/tasks - fetch all of the user's tasks (flat list). */
+  /** GET /api/tasks - fetch all of the current user's tasks (flat list). */
   getTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(this.BASE_URL);
-  }
-
-  /** GET /api/tasks - fetch all of the user's tasks (flat list). */
-  getTasksByCurrentUser(): Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.BASE_URL}/current_user`);
   }
 
   /** GET /api/tasks/{id} - fetch a single task. */

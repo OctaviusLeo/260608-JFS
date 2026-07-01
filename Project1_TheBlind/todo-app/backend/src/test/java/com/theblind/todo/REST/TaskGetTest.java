@@ -87,12 +87,12 @@ public class TaskGetTest {
     // ========================
 
     /**
-     * TEST 1 - Happy path
-     * GET /api/tasks with valid JWT returns 200 and a list of all tasks.
+     * TEST 1
+     * GET /api/tasks with valid JWT returns 200 and only the current user's tasks.
      */
     @Test
-    @DisplayName("GET /api/tasks - authenticated user receives all tasks (200)")
-    void getAllTasks_authenticated_returns200() {
+    @DisplayName("GET /api/tasks - authenticated user receives only their own tasks (200)")
+    void getAllTasks_authenticated_returnsOnlyCurrentUserTasks() {
         given()
             .header("Authorization", "Bearer " + token)
         .when()
@@ -104,7 +104,7 @@ public class TaskGetTest {
     }
 
     /**
-     * TEST 2 - Sad path
+     * TEST 2
      * GET /api/tasks without JWT returns 401 Unauthorized.
      */
     @Test
@@ -118,7 +118,7 @@ public class TaskGetTest {
     }
 
     /**
-     * TEST 3 - Sad path
+     * TEST 3
      * GET /api/tasks with an invalid/expired token returns 401.
      */
     @Test
@@ -132,114 +132,13 @@ public class TaskGetTest {
             .statusCode(401);
     }
 
-    // ========================
-    // GET /api/tasks/{id}
-    // ========================
-
     /**
-     * TEST 4 - Happy Path
-     * GET /api/tasks/{id} with valid JWT and existing task returns 200.
+     * TEST 4
+     * GET /api/tasks does not include tasks belonging to other users.
      */
     @Test
-    @DisplayName("GET /api/tasks/{id} - existing task returns 200 with task data")
-    void getTaskById_existingTask_returns200() {
-        // Create a task and capture its id
-        String taskId = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + token)
-            .body("{\"taskContent\":\"Specific task\"}")
-        .when()
-            .post("/tasks")
-        .then()
-            .statusCode(201)
-            .extract()
-            .path("id");
-
-        given()
-            .header("Authorization", "Bearer " + token)
-        .when()
-            .get("/tasks/" + taskId)
-        .then()
-            .statusCode(200)
-            .contentType(ContentType.JSON)
-            .body("taskContent", org.hamcrest.Matchers.equalTo("Specific task"))
-            .body("id", org.hamcrest.Matchers.equalTo(taskId));
-    }
-
-    /**
-     * TEST 5 - Sad Path
-     * GET /api/tasks/{id} with valid JWT but non-existent id returns 404.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/{id} - non-existent task returns 404")
-    void getTaskById_nonExistentTask_returns404() {
-        String randomId = UUID.randomUUID().toString();
-
-        given()
-            .header("Authorization", "Bearer " + token)
-        .when()
-            .get("/tasks/" + randomId)
-        .then()
-            .statusCode(404);
-    }
-
-    /**
-     * TEST 6 - Sad path
-     * GET /api/tasks/{id} without JWT returns 401.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/{id} - unauthenticated request returns 401")
-    void getTaskById_unauthenticated_returns401() {
-        given()
-        .when()
-            .get("/tasks/" + UUID.randomUUID().toString())
-        .then()
-            .statusCode(401);
-    }
-
-    /**
-     * TEST 7 - Sad path
-     * GET /api/tasks/{id} with an invalid token returns 401.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/{id} - invalid token returns 401")
-    void getTaskById_invalidToken_returns401() {
-        given()
-            .header("Authorization", "Bearer bad.token.here")
-        .when()
-            .get("/tasks/" + UUID.randomUUID().toString())
-        .then()
-            .statusCode(401);
-    }
-
-    // ========================
-    // GET /api/tasks/current_user
-    // ========================
-
-    /**
-     * TEST 8 - Happy path
-     * GET /api/tasks/current_user with valid JWT returns 200 and only the current user's tasks.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/current_user - returns only current user's tasks (200)")
-    void getTasksByCurrentUser_authenticated_returns200() {
-        given()
-            .header("Authorization", "Bearer " + token)
-        .when()
-            .get("/tasks/current_user")
-        .then()
-            .statusCode(200)
-            .contentType(ContentType.JSON)
-            .body("size()", org.hamcrest.Matchers.equalTo(2));
-    }
-
-    /**
-     * TEST 9 - Sad path
-     * GET /api/tasks/current_user returns only the authenticated user's tasks, not tasks from other users.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/current_user - does not include another user's tasks")
-    void getTasksByCurrentUser_excludesOtherUserTasks() {
+    @DisplayName("GET /api/tasks - does not include another user's tasks")
+    void getAllTasks_excludesOtherUserTasks() {
         // Register and login a second user
         given()
             .contentType(ContentType.JSON)
@@ -273,7 +172,7 @@ public class TaskGetTest {
         given()
             .header("Authorization", "Bearer " + token)
         .when()
-            .get("/tasks/current_user")
+            .get("/tasks")
         .then()
             .statusCode(200)
             .contentType(ContentType.JSON)
@@ -283,7 +182,7 @@ public class TaskGetTest {
         given()
             .header("Authorization", "Bearer " + otherToken)
         .when()
-            .get("/tasks/current_user")
+            .get("/tasks")
         .then()
             .statusCode(200)
             .contentType(ContentType.JSON)
@@ -291,41 +190,12 @@ public class TaskGetTest {
     }
 
     /**
-     * TEST 10 - Sad path
-     * GET /api/tasks/current_user without JWT returns 401.
+     * TEST 5
+     * GET /api/tasks for a user with no tasks returns 200 with an empty list.
      */
     @Test
-    @DisplayName("GET /api/tasks/current_user - unauthenticated request returns 401")
-    void getTasksByCurrentUser_unauthenticated_returns401() {
-        given()
-        .when()
-            .get("/tasks/current_user")
-        .then()
-            .statusCode(401);
-    }
-
-    /**
-     * TEST 11 - Sad path
-     * GET /api/tasks/current_user with invalid token returns 401.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/current_user - invalid token returns 401")
-    void getTasksByCurrentUser_invalidToken_returns401() {
-        given()
-            .header("Authorization", "Bearer invalid.jwt.token")
-        .when()
-            .get("/tasks/current_user")
-        .then()
-            .statusCode(401);
-    }
-
-    /**
-     * TEST 12 - Happy path
-     * GET /api/tasks/current_user for a user with no tasks returns 200 with empty list.
-     */
-    @Test
-    @DisplayName("GET /api/tasks/current_user - user with no tasks returns empty list (200)")
-    void getTasksByCurrentUser_noTasks_returnsEmptyList() {
+    @DisplayName("GET /api/tasks - user with no tasks returns empty list (200)")
+    void getAllTasks_noTasks_returnsEmptyList() {
         // Register and login a fresh user with no tasks
         given()
             .contentType(ContentType.JSON)
@@ -348,10 +218,90 @@ public class TaskGetTest {
         given()
             .header("Authorization", "Bearer " + emptyToken)
         .when()
-            .get("/tasks/current_user")
+            .get("/tasks")
         .then()
             .statusCode(200)
             .contentType(ContentType.JSON)
             .body("size()", org.hamcrest.Matchers.equalTo(0));
+    }
+
+    // ========================
+    // GET /api/tasks/{id}
+    // ========================
+
+    /**
+     * TEST 6
+     * GET /api/tasks/{id} with valid JWT and existing task returns 200.
+     */
+    @Test
+    @DisplayName("GET /api/tasks/{id} - existing task returns 200 with task data")
+    void getTaskById_existingTask_returns200() {
+        // Create a task and capture its id
+        String taskId = given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body("{\"taskContent\":\"Specific task\"}")
+        .when()
+            .post("/tasks")
+        .then()
+            .statusCode(201)
+            .extract()
+            .path("id");
+
+        given()
+            .header("Authorization", "Bearer " + token)
+        .when()
+            .get("/tasks/" + taskId)
+        .then()
+            .statusCode(200)
+            .contentType(ContentType.JSON)
+            .body("taskContent", org.hamcrest.Matchers.equalTo("Specific task"))
+            .body("id", org.hamcrest.Matchers.equalTo(taskId));
+    }
+
+    /**
+     * TEST 7
+     * GET /api/tasks/{id} with valid JWT but non-existent id returns 404.
+     */
+    @Test
+    @DisplayName("GET /api/tasks/{id} - non-existent task returns 404")
+    void getTaskById_nonExistentTask_returns404() {
+        String randomId = UUID.randomUUID().toString();
+
+        given()
+            .header("Authorization", "Bearer " + token)
+        .when()
+            .get("/tasks/" + randomId)
+        .then()
+            .statusCode(404);
+    }
+
+    /**
+     * TEST 8
+     * GET /api/tasks/{id} without JWT returns 401.
+     */
+    @Test
+    @DisplayName("GET /api/tasks/{id} - unauthenticated request returns 401")
+    void getTaskById_unauthenticated_returns401() {
+        given()
+        .when()
+            .get("/tasks/" + UUID.randomUUID().toString())
+        .then()
+            .statusCode(401);
+    }
+
+    /**
+     * TEST 9
+     * GET /api/tasks/{id} with an invalid token returns 401.
+     */
+    @Test
+    @DisplayName("GET /api/tasks/{id} - invalid token returns 401")
+    void getTaskById_invalidToken_returns401() {
+        given()
+            .header("Authorization", "Bearer bad.token.here")
+        .when()
+            .get("/tasks/" + UUID.randomUUID().toString())
+        .then()
+            .statusCode(401);
     }
 }
