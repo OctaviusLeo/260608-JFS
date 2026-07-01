@@ -31,11 +31,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.restassured.http.ContentType;
-import java.util.Map;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-
 // tells app that, during testing, for this class, the web environment is actually real
 // real and during testing, it  is listening on a random port
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -64,8 +59,8 @@ public class GetTasksByCurrentUserTest {
         RestAssured.baseURI = "http://localhost/api";
         RestAssured.port = port;
 
-        accountRepo.deleteAll();
         taskRepo.deleteAll();
+        accountRepo.deleteAll();
 
         User testUser1 = new User();
         testUser1.setUsername("john_doe");
@@ -81,6 +76,7 @@ public class GetTasksByCurrentUserTest {
         String[][] taskContents = {{"Hello", "World"}, {"FOO", "BAR"}};
         
         for (int i = 0; i < this.users.length; i++) {
+            // create new user
             given().
                 contentType(ContentType.JSON).
                 body(users[i]).
@@ -89,6 +85,7 @@ public class GetTasksByCurrentUserTest {
                 then().
                     statusCode(201);
 
+            // log user in a get token from body
             token = given().
                 contentType(ContentType.JSON).
                 body(this.users[i]).
@@ -100,6 +97,7 @@ public class GetTasksByCurrentUserTest {
                     path("token").
                     toString();
 
+            // after login, use token to authenticate user and create two tasks
             for (int j = 0; j < taskContents[i].length; j++) {
                 given().
                     contentType(ContentType.JSON).
@@ -144,5 +142,55 @@ public class GetTasksByCurrentUserTest {
         assertEquals(2, response.jsonPath().getList("$").size());
         response.then().assertThat().body("[0].taskContent", equalTo("Hello"));
         response.then().assertThat().body("[1].taskContent", equalTo("World"));
+    }
+
+    /**
+     * TEST 2
+     * Sending an http request to GET localhost:8080/tasks/current_user when 
+     * not logged in as a user (or at least no token in Authorization header)
+     * 
+     * Expected Response:
+     *  Status Code: 403
+     */
+    @Test
+    @DisplayName("Unsuccessfully retrival of tasks - no user to authenticate (no token sent in header)")
+    void getTasksByCurrentUserNoAuthorization() {
+        // no token given, no user to check tasks of
+        given().
+            contentType(ContentType.JSON).
+            when().
+                get("/tasks/current_user").
+            then().
+                statusCode(401);
+    }
+
+    /**
+     * TEST 2
+     * Sending an http request to GET localhost:8080/tasks/current_user when logged in 
+     * as a user and NOT receiving other users' tasks
+     * 
+     * Expected Response:
+     *  Status Code: 200
+     */
+    @Test
+    @DisplayName("Successfully retrived all tasks by currently logged in user")
+    void getTasksByCurrentUser() {
+        // get tasks by jane_doe
+        Response response = given().
+            contentType(ContentType.JSON).
+            header("Authorization", "Bearer " + tokens[1]).
+            when().
+                get("/tasks/current_user").
+            then().
+                statusCode(200).
+                extract().
+                response();
+
+        // jane_doe's tasks should not include john_doe's tasks
+        assertEquals(2, response.jsonPath().getList("$").size());
+        response.then().assertThat().body("[0].taskContent", not("Hello"));
+        response.then().assertThat().body("[0].taskContent", equalTo("FOO"));
+        response.then().assertThat().body("[1].taskContent", not("World"));
+        response.then().assertThat().body("[1].taskContent", equalTo("BAR"));
     }
 }
