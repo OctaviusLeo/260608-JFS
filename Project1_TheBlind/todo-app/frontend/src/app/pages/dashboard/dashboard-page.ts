@@ -54,7 +54,7 @@ export class DashboardPage implements OnInit {
     if (!this.hasLoaded) {
       this.loading.set(true);
     }
-    this.taskService.getTasksByCurrentUser().subscribe({
+    this.taskService.getTasks().subscribe({
       next: (data) => {
         const flat = this.toTaskArray(data);
         this.tasks.set(this.buildTree(flat));

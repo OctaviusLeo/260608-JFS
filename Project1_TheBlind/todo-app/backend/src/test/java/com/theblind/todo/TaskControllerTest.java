@@ -90,7 +90,7 @@ class TaskControllerTest {
                     taskWithId(id1, "Task one"),
                     taskWithId(id2, "Task two")
             );
-            when(taskService.getAll()).thenReturn(tasks);
+            when(taskService.getAllByCurrentUser()).thenReturn(tasks);
 
             mockMvc.perform(get("/api/tasks"))
                     .andExpect(status().isOk())
@@ -103,7 +103,7 @@ class TaskControllerTest {
         @Test
         @DisplayName("returns 200 with empty array when no tasks exist")
         void getAllTasks_emptyList() throws Exception {
-            when(taskService.getAll()).thenReturn(List.of());
+            when(taskService.getAllByCurrentUser()).thenReturn(List.of());
 
             mockMvc.perform(get("/api/tasks"))
                     .andExpect(status().isOk())

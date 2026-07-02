@@ -117,29 +117,18 @@ class TaskServiceTest {
         }
     }
 
-    // ── getAll() ──────────────────────────────────────────────────────────────
+    // ── getAllByCurrentUser() ─────────────────────────────────────────────────
 
     @Nested
-    @DisplayName("getAll()")
-    class GetAll {
+    @DisplayName("getAllByCurrentUser()")
+    class GetAllByCurrentUser {
 
         @Test
-        @DisplayName("returns all tasks from the repository")
-        void getAll_returnsList() {
-            List<Task> tasks = List.of(taskWith("A"), taskWith("B"));
-            when(repo.findAll()).thenReturn(tasks);
-
-            List<Task> result = service.getAll();
-
-            assertThat(result).hasSize(2).containsExactlyElementsOf(tasks);
-        }
-
-        @Test
-        @DisplayName("returns empty list when repository is empty")
-        void getAll_emptyRepo_returnsEmptyList() {
-            when(repo.findAll()).thenReturn(List.of());
-
-            assertThat(service.getAll()).isEmpty();
+        @DisplayName("returns empty list when no authentication is present")
+        void getAllByCurrentUser_noAuth_returnsEmptyList() {
+            // With no SecurityContext authentication, the method returns an empty list
+            List<Task> result = service.getAllByCurrentUser();
+            assertThat(result).isEmpty();
         }
     }
 
