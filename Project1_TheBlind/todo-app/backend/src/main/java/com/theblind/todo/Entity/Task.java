@@ -59,7 +59,9 @@ public class Task {
 
     @Column(name = "is_complete")
     private Boolean isComplete = false;
-
+    
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    
     @Column(name = "task_creation", updatable = false)
     private LocalDateTime taskCreation = LocalDateTime.now();
 }
