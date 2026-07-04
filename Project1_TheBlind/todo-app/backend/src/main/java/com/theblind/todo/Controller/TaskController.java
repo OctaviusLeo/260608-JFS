@@ -29,22 +29,12 @@ public class TaskController {
     private final String REQUEST_ORIGIN_URL = "http://localhost:4200";
 
     /**
-     * Retrieve all tasks.
+     * Retrieve all tasks belonging to the currently authenticated user.
      *
-     * @return ResponseEntity containing a list of all {@link Task} objects with HTTP status 200 (OK).
+     * @return ResponseEntity containing a list of the current user's {@link Task} objects with HTTP status 200 (OK).
      */
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAll());
-    }
-
-    /**
-     * Retrieve all tasks.
-     *
-     * @return ResponseEntity containing a list of all {@link Task} objects from logged in user with HTTP status 200 (OK).
-     */
-    @GetMapping("/current_user")
-    public ResponseEntity<List<Task>> getAllTasksByCurrentUser() {
         return ResponseEntity.ok(taskService.getAllByCurrentUser());
     }
 
