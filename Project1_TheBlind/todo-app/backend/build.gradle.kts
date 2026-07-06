@@ -37,6 +37,14 @@ dependencies {
 	// Spring Starter Security Dependencies
     implementation("org.springframework.boot:spring-boot-starter-security")
 	testImplementation("org.springframework.security:spring-security-test")
+
+	// E2E testing: Cucumber + Selenium + WebDriverManager
+	testImplementation("io.cucumber:cucumber-java:7.20.1")
+	testImplementation("io.cucumber:cucumber-junit-platform-engine:7.20.1")
+	testImplementation("io.cucumber:cucumber-spring:7.20.1")
+	testImplementation("org.seleniumhq.selenium:selenium-java:4.25.0")
+	testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")
+	testImplementation("org.junit.platform:junit-platform-suite:1.11.4")
 }
 
 tasks.withType<Test> {
