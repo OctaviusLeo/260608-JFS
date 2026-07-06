@@ -16,14 +16,16 @@ public class LoginPage {
     private final WebDriverWait wait;
 
     // IDs from login-form.component.html
-    private final By usernameInput    = By.id("username");
-    private final By passwordInput    = By.id("password");
-    private final By loginButton      = By.cssSelector("button.btn-submit");
-    private final By errorMessage     = By.cssSelector(".error-msg.login-error small");
+    private final By usernameInput = By.id("username");
+    private final By passwordInput = By.id("password");
+    private final By loginButton   = By.cssSelector("button.btn-submit");
+    // Selector for the API-level login failure message only — NOT the field validation messages
+    private final By errorMessage  = By.cssSelector(".error-msg.login-error small");
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(5));
+        // 10 seconds covers the round-trip to the backend + Angular navigation
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     // Opens the login page and waits for the username field to appear
@@ -33,60 +35,56 @@ public class LoginPage {
     }
 
     public void enterUsername(String username) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(usernameInput));
-        WebElement field = driver.findElement(usernameInput);
+        WebElement field = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameInput));
         field.clear();
         field.sendKeys(username);
     }
 
     public void enterPassword(String password) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(passwordInput));
-        WebElement field = driver.findElement(passwordInput);
+        WebElement field = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordInput));
         field.clear();
         field.sendKeys(password);
     }
 
     public void clickLogin() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(loginButton));
-        driver.findElement(loginButton).click();
-        // Wait for either:
-        //   (a) the URL to change away from /login — successful login, navigating to /dashboard
-        //   (b) the API-level login-error message to appear — credentials were rejected
-        // The field-level .error-msg elements are excluded because they can be
-        // present before the click (e.g. after a previous failed attempt).
+        wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
+        // Block until the async HTTP response has been processed:
+        //   (a) URL leaves /login  → successful login, Angular navigated to /dashboard
+        //   (b) API error element appears → bad credentials, still on /login
+        // Field-level validation messages (.error-msg without .login-error) are
+        // deliberately excluded — they can appear synchronously before the click.
         wait.until(ExpectedConditions.or(
             ExpectedConditions.not(ExpectedConditions.urlContains("/login")),
             ExpectedConditions.visibilityOfElementLocated(errorMessage)
         ));
     }
 
-    // Returns the error message text, or empty string if none is showing
+    // Returns the API error message text, or empty string if none is showing
     public String getErrorMessage() {
         try {
-            WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage));
-            return el.getText();
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
         } catch (Exception e) {
             return "";
         }
     }
 
-    // True if a login error is showing on the page
+    // True when the API login-error message is visible
     public boolean hasErrorMessage() {
         return !getErrorMessage().isEmpty();
     }
 
-    // True if username field is filled
+    // True when the username input has a non-empty value
     public boolean verifyUsernameInput() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(usernameInput));
-        WebElement field = driver.findElement(usernameInput);
-        return field.getAttribute("value") != "";
+        WebElement field = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameInput));
+        String value = field.getAttribute("value");
+        return value != null && !value.isEmpty();
     }
 
-    // True if a password field is filled
+    // True when the password input has a non-empty value
     public boolean verifyPasswordInput() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(passwordInput));
-        WebElement field = driver.findElement(passwordInput);
-        return field.getAttribute("value") != "";
+        WebElement field = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordInput));
+        String value = field.getAttribute("value");
+        return value != null && !value.isEmpty();
     }
 
     // True if the browser is still on /login
@@ -94,7 +92,7 @@ public class LoginPage {
         return driver.getCurrentUrl().contains("/login");
     }
 
-    // True if the browser landed on /dashboard after login
+    // True if the browser has reached /dashboard
     public boolean isOnDashboard() {
         try {
             wait.until(ExpectedConditions.urlContains("/dashboard"));

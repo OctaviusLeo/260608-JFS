@@ -39,7 +39,7 @@ public class CreateTaskSteps {
     // Order 100 ensures this runs after BrowserConfig.openBrowser() (order 0),
     // but we still don't create page objects here — the driver may not be fully
     // ready until the first step method is called.
-    @Before(order = 100)
+    @Before(order = 0)
     public void setUp() {
         testDataHelper.cleanDatabase();
         // Nulled out so getLoginPage() / getDashboardPage() rebuild them with

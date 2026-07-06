@@ -23,7 +23,7 @@ public class DashboardPage {
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
-        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     // Opens the dashboard page and waits for the create task input field to appear
