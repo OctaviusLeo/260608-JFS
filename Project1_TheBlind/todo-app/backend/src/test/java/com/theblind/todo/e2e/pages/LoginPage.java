@@ -23,7 +23,7 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     // Opens the login page and waits for the username field to appear
