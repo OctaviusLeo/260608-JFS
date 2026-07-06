@@ -38,6 +38,10 @@ public class DashboardPage {
         return driver.getCurrentUrl().contains("/dashboard");
     }
 
+    /**
+     * Clicks Add and waits for a task item to appear in the list.
+     * Use for scenarios where valid input is submitted and a task is expected to be created.
+     */
     public void enterPrimaryTaskText(String text) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskTextInput));
         WebElement field = driver.findElement(primaryTaskTextInput);
