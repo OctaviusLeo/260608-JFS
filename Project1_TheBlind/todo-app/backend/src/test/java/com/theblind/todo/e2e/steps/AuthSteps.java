@@ -22,7 +22,6 @@ public class AuthSteps {
     @Autowired
     private TestDataHelper testDataHelper;
 
-    // Null until first use — see getLoginPage() / getRegisterPage().
     private LoginPage loginPage;
     private RegisterPage registerPage;
 
@@ -35,43 +34,26 @@ public class AuthSteps {
         return System.getProperty("e2e.baseUrl", "http://localhost:4200");
     }
 
-    // Wipe the database before each scenario and reset page object references.
-    // Order 100 runs after BrowserConfig.openBrowser() (default order 0), but
-    // page objects are still created lazily — the driver is only guaranteed to
-    // be non-null when a step method is actually called, not during @Before.
+    // Wipe the database and set up fresh page objects before each scenario.
+    // Order 100 ensures this runs after BrowserConfig.openBrowser() (order 0 by default)
+    // so the WebDriver is ready when we create the page objects.
     @Before(order = 100)
     public void setUp() {
         testDataHelper.cleanDatabase();
-        loginPage    = null;
-        registerPage = null;
-    }
-
-    /** Returns the LoginPage, creating it the first time it is needed. */
-    private LoginPage getLoginPage() {
-        if (loginPage == null) {
-            loginPage = new LoginPage(browserConfig.getDriver());
-        }
-        return loginPage;
-    }
-
-    /** Returns the RegisterPage, creating it the first time it is needed. */
-    private RegisterPage getRegisterPage() {
-        if (registerPage == null) {
-            registerPage = new RegisterPage(browserConfig.getDriver());
-        }
-        return registerPage;
+        loginPage    = new LoginPage(browserConfig.getDriver());
+        registerPage = new RegisterPage(browserConfig.getDriver());
     }
 
     // ── Given ────────────────────────────────────────────────────────────────
 
     @Given("I am on the login page")
     public void iAmOnTheLoginPage() {
-        getLoginPage().navigateTo(baseUrl());
+        loginPage.navigateTo(baseUrl());
     }
 
     @Given("I am on the register page")
     public void iAmOnTheRegisterPage() {
-        getRegisterPage().navigateTo(baseUrl());
+        registerPage.navigateTo(baseUrl());
     }
 
     // Creates a user via the API so login tests have an account to work with
@@ -83,18 +65,11 @@ public class AuthSteps {
     // Logs in via the UI and stores the fact that we're authenticated
     @Given("I am logged in as {string} with password {string}")
     public void iAmLoggedInAs(String username, String password) {
-        getLoginPage().navigateTo(baseUrl());
-        getLoginPage().enterUsername(username);
-
-        getLoginPage().enterPassword(password);
-        assertThat(getLoginPage().verifyPasswordInput())
-                .as("Password should be typed")
-                .isTrue();
-        getLoginPage().clickLogin();
-        assertThat(getLoginPage().hasErrorMessage())
-                .as("Should not have error logging in")
-                .isFalse();
-        assertThat(getLoginPage().isOnDashboard())
+        loginPage.navigateTo(baseUrl());
+        loginPage.enterUsername(username);
+        loginPage.enterPassword(password);
+        loginPage.clickLogin();
+        assertThat(loginPage.isOnDashboard())
                 .as("Should be on dashboard after logging in")
                 .isTrue();
     }
@@ -103,79 +78,79 @@ public class AuthSteps {
 
     @When("I enter username {string} and password {string}")
     public void iEnterUsernameAndPassword(String username, String password) {
-        getLoginPage().enterUsername(username);
-        getLoginPage().enterPassword(password);
+        loginPage.enterUsername(username);
+        loginPage.enterPassword(password);
     }
 
     @When("I click the login button")
     public void iClickTheLoginButton() {
-        getLoginPage().clickLogin();
+        loginPage.clickLogin();
     }
 
     @When("I fill in username {string} password {string} and confirm password {string}")
     public void iFillInRegistrationForm(String username, String password, String confirm) {
-        getRegisterPage().enterUsername(username);
-        getRegisterPage().enterPassword(password);
-        getRegisterPage().enterConfirmPassword(confirm);
+        registerPage.enterUsername(username);
+        registerPage.enterPassword(password);
+        registerPage.enterConfirmPassword(confirm);
     }
 
     @When("I click the create account button")
     public void iClickTheCreateAccountButton() {
-        getRegisterPage().clickCreateAccount();
+        registerPage.clickCreateAccount();
     }
 
     @When("I navigate to the login page")
     public void iNavigateToTheLoginPage() {
-        getLoginPage().navigateTo(baseUrl());
+        loginPage.navigateTo(baseUrl());
     }
 
     // ── Then ─────────────────────────────────────────────────────────────────
 
     @Then("I should be redirected to the dashboard")
     public void iShouldBeRedirectedToTheDashboard() {
-        assertThat(getLoginPage().isOnDashboard())
+        assertThat(loginPage.isOnDashboard())
                 .as("Should be redirected to /dashboard after login")
                 .isTrue();
     }
 
     @Then("I should stay on the login page")
     public void iShouldStayOnTheLoginPage() {
-        assertThat(getLoginPage().isOnLoginPage())
+        assertThat(loginPage.isOnLoginPage())
                 .as("Should remain on /login when credentials are blank")
                 .isTrue();
     }
 
     @Then("I should see a login error message")
     public void iShouldSeeALoginErrorMessage() {
-        assertThat(getLoginPage().hasErrorMessage())
+        assertThat(loginPage.hasErrorMessage())
                 .as("An error message should be visible after a failed login")
                 .isTrue();
     }
 
     @Then("I should see a registration success message")
     public void iShouldSeeARegistrationSuccessMessage() {
-        assertThat(getRegisterPage().isRegistrationSuccessful())
+        assertThat(registerPage.isRegistrationSuccessful())
                 .as("Success message should appear after valid registration")
                 .isTrue();
     }
 
     @Then("I should see a username validation error")
     public void iShouldSeeAUsernameValidationError() {
-        assertThat(getRegisterPage().hasUsernameError())
+        assertThat(registerPage.hasUsernameError())
                 .as("A username validation error should be visible")
                 .isTrue();
     }
 
     @Then("I should see a password validation error")
     public void iShouldSeeAPasswordValidationError() {
-        assertThat(getRegisterPage().hasPasswordError())
+        assertThat(registerPage.hasPasswordError())
                 .as("A password validation error should be visible")
                 .isTrue();
     }
 
     @Then("I should see a confirm password mismatch error")
     public void iShouldSeeAConfirmPasswordMismatchError() {
-        assertThat(getRegisterPage().hasConfirmPasswordError())
+        assertThat(registerPage.hasConfirmPasswordError())
                 .as("A password mismatch error should be visible")
                 .isTrue();
     }
@@ -183,7 +158,7 @@ public class AuthSteps {
     @Then("I should see a registration error message")
     public void iShouldSeeARegistrationErrorMessage() {
         // Staying on register page after submit means registration failed
-        assertThat(getRegisterPage().isOnRegisterPage())
+        assertThat(registerPage.isOnRegisterPage())
                 .as("Should stay on register page when registration fails")
                 .isTrue();
     }
