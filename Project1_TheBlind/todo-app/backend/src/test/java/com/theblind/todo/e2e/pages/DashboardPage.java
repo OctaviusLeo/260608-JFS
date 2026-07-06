@@ -16,9 +16,10 @@ public class DashboardPage {
     private final WebDriverWait wait;
 
     // Input and button for primary tasks
-    private final By addPrimaryTaskButton      = By.cssSelector("button.btn-primary");
-    private final By primaryTaskTextInput      = By.cssSelector("input.context-input");
-    private final By primaryTask               = By.cssSelector("li.task-node");
+    private final By addPrimaryTaskButton  = By.cssSelector("button.btn-primary");
+    private final By primaryTaskTextInput  = By.cssSelector("input.context-input");
+    private final By primaryTask           = By.cssSelector("li.task-node");
+    private final By primaryTaskContent    = By.cssSelector("li.task-node span.task-content");
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
@@ -44,23 +45,46 @@ public class DashboardPage {
         field.sendKeys(text);
     }
 
+    /**
+     * Clicks Add and waits for a task item to appear in the list.
+     * Use for scenarios where valid input is submitted and a task is expected to be created.
+     */
     public void clickCreateTaskButton() {
         wait.until(ExpectedConditions.visibilityOfElementLocated(addPrimaryTaskButton));
         driver.findElement(addPrimaryTaskButton).click();
-        // Wait for the task list to update after the async POST + reload completes.
+        // Block until the async POST + list reload finishes and a task node is visible.
         wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTask));
     }
 
-    public String getPrimaryTaskText() {
-        // Wait for the task content span specifically — li.task-node also contains
-        // the checkbox, edit/delete buttons, etc., so getText() on the li would
-        // return all of that noise. span.task-content holds just the task text.
-        By taskContent = By.cssSelector("li.task-node span.task-content");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(taskContent));
-        return driver.findElement(taskContent).getText().trim();
+    /**
+     * Clicks Add without waiting for a task node to appear afterward.
+     * Use for scenarios where blank input is submitted and no task is expected.
+     */
+    public void clickCreateTaskButtonNoWait() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(addPrimaryTaskButton));
+        driver.findElement(addPrimaryTaskButton).click();
+        // Short pause to allow any accidental POST to complete before asserting nothing changed.
+        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
     }
 
-    // True if the browser is still on /dashboard
+    /**
+     * Returns the text content of the first task in the list.
+     * Uses span.task-content to avoid capturing checkbox/button text from the li.
+     */
+    public String getPrimaryTaskText() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContent));
+        return driver.findElement(primaryTaskContent).getText().trim();
+    }
+
+    /**
+     * Returns true when no task nodes are present in the DOM.
+     * Used to assert that a blank submit did not create a task.
+     */
+    public boolean checkIfNoPrimaryTask() {
+        return driver.findElements(primaryTask).isEmpty();
+    }
+
+    // True if the browser is on /dashboard
     public boolean isOnDashboardPage() {
         wait.until(ExpectedConditions.urlContains("/dashboard"));
         return driver.getCurrentUrl().contains("/dashboard");

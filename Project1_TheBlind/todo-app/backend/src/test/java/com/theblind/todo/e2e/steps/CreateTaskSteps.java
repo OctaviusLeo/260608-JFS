@@ -14,7 +14,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class TaskSteps {
+public class CreateTaskSteps {
     // helper functions
     @Autowired
     private TestDataHelper testDataHelper;
@@ -31,7 +31,7 @@ public class TaskSteps {
     // Cucumber-Spring handles it through constructor injection instead.
     private final BrowserConfig browserConfig;
 
-    public TaskSteps(BrowserConfig browserConfig) {
+    public CreateTaskSteps(BrowserConfig browserConfig) {
         this.browserConfig = browserConfig;
     }
 
@@ -99,6 +99,8 @@ public class TaskSteps {
                 .isTrue();
     }
 
+    // --- Scenario 1: Valid task
+
     @When("the user inputs text")
     public void the_user_inputs_text() {
         getDashboardPage().enterPrimaryTaskText("Hello, world!");
@@ -116,4 +118,26 @@ public class TaskSteps {
                 .as("Primary task should have been created with correct content")
                 .isEqualTo("Hello, world!");
     }
+
+    // --- Scenario 2: Invalid task, no text
+    
+    @When("the user does not input any text")
+    public void the_user_does_not_input_any_text() {
+        getDashboardPage().enterPrimaryTaskText("");
+    }
+
+    @When("the user clicks the add task button while input is blank")
+    public void the_user_clicks_the_add_task_button_while_input_is_blank() {
+        // Use the no-wait variant — blank input means no task is created and
+        // li.task-node will never appear, so the normal click would time out.
+        getDashboardPage().clickCreateTaskButtonNoWait();
+    }
+
+    @Then("the task should not be created and the UI should not change")
+    public void the_task_should_not_be_created_and_the_ui_should_not_change() {
+        assertThat(getDashboardPage().checkIfNoPrimaryTask())
+                .as("No task should have been created")
+                .isTrue();
+    }
+
 }

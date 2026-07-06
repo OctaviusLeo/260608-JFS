@@ -8,3 +8,8 @@ Feature: Create Task
     When the user inputs text 
     And the user clicks the add task button
     Then the task should be created and the UI should be updated
+
+  Scenario: Creating a task with an empty text input
+    When the user does not input any text 
+    And the user clicks the add task button while input is blank
+    Then the task should not be created and the UI should not change
