@@ -3,8 +3,10 @@ package com.theblind.todo.e2e.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 
@@ -20,6 +22,8 @@ public class DashboardPage {
     private final By primaryTaskTextInput  = By.cssSelector("input.context-input");
     private final By primaryTask           = By.cssSelector("li.task-node");
     private final By primaryTaskContent    = By.cssSelector("li.task-node span.task-content");
+    private final By primaryTaskContentEdittable    = By.id("input.task-edit-input");
+    private final By editTaskButton    = By.id("button[title='Rename_task']");
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
@@ -81,11 +85,45 @@ public class DashboardPage {
     }
 
     /**
+     * Edits text content of first task in the list.
+     * Assumes task already exists.
+     * Uses span.task-content to avoid capturing checkbox/button text from the li.
+     */
+    public void editPrimaryTaskText(String text) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContentEdittable));
+        WebElement updateField = driver.findElement(primaryTaskContentEdittable);
+        int textLength = updateField.getAttribute("value").length();
+
+        for (int i = 0; i < textLength; i++) {
+            updateField.sendKeys(Keys.BACK_SPACE);
+        }
+
+        updateField.sendKeys(text);
+        updateField.sendKeys(Keys.ENTER);
+    }
+
+    /**
+     * Clicks the edit button of a task
+     */
+    public void clickPrimaryTaskEditButton() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(editTaskButton));
+        WebElement updateButton = driver.findElement(editTaskButton);
+        updateButton.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContentEdittable));
+    }
+
+
+    /**
      * Returns true when no task nodes are present in the DOM.
      * Used to assert that a blank submit did not create a task.
      */
     public boolean checkIfNoPrimaryTask() {
         return driver.findElements(primaryTask).isEmpty();
+    }
+
+    public boolean checkIfPrimaryTaskHasText(String text) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContentEdittable));
+        return driver.findElement(primaryTaskContentEdittable).getAttribute("value") == text;
     }
 
     // True if the browser is on /dashboard
