@@ -22,8 +22,8 @@ public class DashboardPage {
     private final By primaryTaskTextInput  = By.cssSelector("input.context-input");
     private final By primaryTask           = By.cssSelector("li.task-node");
     private final By primaryTaskContent    = By.cssSelector("li.task-node span.task-content");
-    private final By primaryTaskContentEdittable    = By.id("input.task-edit-input");
-    private final By editTaskButton    = By.id("button[title='Rename_task']");
+    private final By primaryTaskContentEdittable    = By.className("task-edit-input");
+    private final By editTaskButton    = By.cssSelector("[title='Rename_task']");
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
