@@ -20,7 +20,7 @@ public class BrowserConfig {
         WebDriverManager.chromedriver().setup();
     }
 
-    @Before
+    @Before(order = 0)
     public void openBrowser() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
@@ -28,7 +28,8 @@ public class BrowserConfig {
                 "--no-sandbox",            // needed in CI/Docker
                 "--disable-dev-shm-usage", // avoids memory issues in CI
                 "--disable-gpu",
-                "--window-size=1920,1080"
+                "--window-size=1920,1080",
+                "--window-position=-2400,-2400"
         );
         driver = new ChromeDriver(options);
     }
