@@ -76,16 +76,6 @@ public class TaskPage {
         return elements.isEmpty() ? null : elements.get(0);
     }
 
-    /**
-     * Finds a child task node nested under a specific parent task.
-     * Looks for a task-node inside the parent's ul.task-tree subtree.
-     */
-    private WebElement findChildTaskByContent(String parentContent, String childContent) {
-        WebElement parent = findTaskByContent(parentContent);
-        String xpath = String.format(".//ul[contains(@class,'task-tree')]//li[contains(@class,'task-node')][.//span[contains(@class,'task-content') and normalize-space(text())='%s']]", childContent);
-        return parent.findElement(By.xpath(xpath));
-    }
-
     // ── Task creation ────────────────────────────────────────────────────────
 
     /**
