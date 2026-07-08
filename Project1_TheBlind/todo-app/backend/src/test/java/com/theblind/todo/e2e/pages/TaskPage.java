@@ -132,10 +132,12 @@ public class TaskPage {
         parent.findElement(By.cssSelector(".subtask-form button.btn-primary")).click();
 
         if(expectSuccess) {
-            // Wait for the child task to appear in the tree
+            // Input has maxlength=50, so only first 50 chars get submitted.
+            // Wait for truncated content to appear.
+            String expectedContent = childContent.length() > 50 ? childContent.substring(0, 50) : childContent;
             new WebDriverWait(driver, Duration.ofSeconds(10))
                     .until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-                            String.format("//li[contains(@class,'task-node')]//span[contains(@class,'task-content') and normalize-space(text())='%s']", childContent)
+                            String.format("//li[contains(@class,'task-node')]//span[contains(@class,'task-content') and normalize-space(text())='%s']", expectedContent)
                     )));
         }
     }
@@ -149,8 +151,14 @@ public class TaskPage {
 
     public boolean isChildTaskVisibleUnderParent(String parentContent, String childContent) {
         try {
-            WebElement child = findChildTaskByContent(parentContent, childContent);
-            return child != null && child.isDisplayed();
+            // Full XPath from root: find a task-node with childContent that lives inside
+            // the task-tree of the parent task-node.
+            String xpath = String.format(
+                    "//li[contains(@class,'task-node')][./div[contains(@class,'task-row')]/span[contains(@class,'task-content') and normalize-space(text())='%s']]//ul[contains(@class,'task-tree')]//li[contains(@class,'task-node')][./div[contains(@class,'task-row')]/span[contains(@class,'task-content') and normalize-space(text())='%s']]",
+                    parentContent, childContent);
+            WebElement child = new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+            return child.isDisplayed();
         } catch (Exception e) {
             return false;
         }
