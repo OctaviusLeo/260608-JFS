@@ -3,7 +3,6 @@ package com.theblind.todo.e2e.steps;
 import com.theblind.todo.e2e.TestDataHelper;
 import com.theblind.todo.e2e.config.BrowserConfig;
 import com.theblind.todo.e2e.pages.DashboardPage;
-import com.theblind.todo.e2e.pages.LoginPage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,7 +18,6 @@ public class DeleteTaskSteps {
     private TestDataHelper testDataHelper;
 
     // pages — initialized lazily so the driver is guaranteed to exist when first used
-    private LoginPage loginPage;
     private DashboardPage dashboardPage;
 
     // BrowserConfig has no @Component so Spring can't autowire it directly.
@@ -37,18 +35,9 @@ public class DeleteTaskSteps {
     @Before(order = 100)
     public void setUp() {
         testDataHelper.cleanDatabase();
-        // Nulled out so getLoginPage() / getDashboardPage() rebuild them with
+        // Nulled out so getDashboardPage() rebuild them with
         // the fresh driver that BrowserConfig just created for this scenario.
-        loginPage     = null;
         dashboardPage = null;
-    }
-
-    /** Returns the LoginPage, creating it the first time it is needed. */
-    private LoginPage getLoginPage() {
-        if (loginPage == null) {
-            loginPage = new LoginPage(browserConfig.getDriver());
-        }
-        return loginPage;
     }
 
     /** Returns the DashboardPage, creating it the first time it is needed. */
