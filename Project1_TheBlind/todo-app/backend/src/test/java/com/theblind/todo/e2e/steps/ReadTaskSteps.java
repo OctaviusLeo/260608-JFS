@@ -10,10 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class UpdateTaskSteps {
+public class ReadTaskSteps {
     // helper functions
     @Autowired
     private TestDataHelper testDataHelper;
@@ -22,11 +23,15 @@ public class UpdateTaskSteps {
     private LoginPage loginPage;
     private DashboardPage dashboardPage;
 
+    // used for registration, login, and authentication purposes
+    private String username = "john_doe";
+    private String password = "Abc**4";
+
     // BrowserConfig has no @Component so Spring can't autowire it directly.
     // Cucumber-Spring handles it through constructor injection instead.
     private final BrowserConfig browserConfig;
 
-    public UpdateTaskSteps(BrowserConfig browserConfig) {
+    public ReadTaskSteps(BrowserConfig browserConfig) {
         this.browserConfig = browserConfig;
     }
 
@@ -43,6 +48,14 @@ public class UpdateTaskSteps {
         dashboardPage = null;
     }
 
+    /** Returns the LoginPage, creating it the first time it is needed. */
+    private LoginPage getLoginPage() {
+        if (loginPage == null) {
+            loginPage = new LoginPage(browserConfig.getDriver());
+        }
+        return loginPage;
+    }
+
     /** Returns the DashboardPage, creating it the first time it is needed. */
     private DashboardPage getDashboardPage() {
         if (dashboardPage == null) {
@@ -51,38 +64,38 @@ public class UpdateTaskSteps {
         return dashboardPage;
     }
 
-    @When("the user clicks on the edit button of a task to update it")
-    public void the_user_clicks_on_the_edit_button_of_a_task_to_update_it() {
-        getDashboardPage().clickPrimaryTaskEditButton();
-        //assertThat(getDashboardPage().checkIfPrimaryTaskHasText("Hello, world!"))
-                //.as("Text should still be there even in edit mode")
-                //.isTrue();
+    @When("the user clicks on the logout button")
+    public void the_user_clicks_on_the_logout_button() {
+        getDashboardPage().logout();
+        assertThat(getLoginPage().isOnLoginPage())
+                .as("Should be redirected to login after logging out")
+                .isTrue();
     }
-
-    @When("the user inputs new text")
-    public void the_user_inputs_new_text() {
-        getDashboardPage().editPrimaryTaskText("foobar");
+    @When("the user logs back in")
+    public void the_user_logs_back_in() {
+        getLoginPage().enterUsername(this.username);
+        assertThat(getLoginPage().verifyUsernameInput())
+                .as("Username should be typed (again)")
+                .isTrue();
+        getLoginPage().enterPassword(this.password);
+        assertThat(getLoginPage().verifyPasswordInput())
+                .as("Password should be typed (again)")
+                .isTrue();
+        getLoginPage().clickLogin();
+        assertThat(getLoginPage().hasErrorMessage())
+                .as("Should not have error logging in (again)")
+                .isFalse();
+        assertThat(getDashboardPage().isOnDashboardPage())
+                .as("Should be redirected to dashboard after logging in (again)")
+                .isTrue();
     }
-
-    @Then("the task should be updated and the UI should be updated")
-    public void the_task_should_be_updated_and_the_ui_should_be_updated() {
+    @Then("the task should remain on dashboard")
+    public void the_task_should_remain_on_dashboard() {
         String text = getDashboardPage().getPrimaryTaskText();
         assertThat(text)
-                .as("Primary task should have been updated with correct content")
-                .isEqualTo("foobar");
-    }
-
-    @When("the user inputs no text")
-    public void the_user_inputs_no_text() {
-        getDashboardPage().editPrimaryTaskText("");
-    }
-
-    @Then("the task should not be updated")
-    public void the_task_should_not_be_updated() {
-        String text = getDashboardPage().getPrimaryTaskText();
-        assertThat(text)
-                .as("Primary task should not have been updated")
+                .as("Primary task should have been created with correct content")
                 .isEqualTo("Hello, world!");
     }
+
 
 }

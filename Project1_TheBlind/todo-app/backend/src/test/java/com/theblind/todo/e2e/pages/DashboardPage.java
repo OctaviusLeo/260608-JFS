@@ -24,6 +24,8 @@ public class DashboardPage {
     private final By primaryTaskContent    = By.cssSelector("li.task-node span.task-content");
     private final By primaryTaskContentEdittable    = By.className("task-edit-input");
     private final By editTaskButton    = By.cssSelector("[title='Rename_task']");
+    private final By deleteTaskButton    = By.cssSelector("[title='Delete_task']");
+    private final By logoutButton    = By.className("btn-logout");
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
@@ -40,6 +42,12 @@ public class DashboardPage {
     public boolean ensurePageIsLoaded() {
         wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskTextInput));
         return driver.getCurrentUrl().contains("/dashboard");
+    }
+
+    // Logout and return to login page
+    public void logout() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(logoutButton));
+        driver.findElement(logoutButton).click();
     }
 
     /**
@@ -62,6 +70,16 @@ public class DashboardPage {
         driver.findElement(addPrimaryTaskButton).click();
         // Block until the async POST + list reload finishes and a task node is visible.
         wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTask));
+    }
+
+    /**
+     * Deletes first task on dashboard.
+     */
+    public void clickDeleteTaskButton() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(deleteTaskButton));
+        driver.findElement(deleteTaskButton).click();
+        //try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        wait.until(ExpectedConditions.stalenessOf(driver.findElement(primaryTask)));
     }
 
     /**

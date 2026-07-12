@@ -13,7 +13,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class UpdateTaskSteps {
+public class DeleteTaskSteps {
     // helper functions
     @Autowired
     private TestDataHelper testDataHelper;
@@ -26,7 +26,7 @@ public class UpdateTaskSteps {
     // Cucumber-Spring handles it through constructor injection instead.
     private final BrowserConfig browserConfig;
 
-    public UpdateTaskSteps(BrowserConfig browserConfig) {
+    public DeleteTaskSteps(BrowserConfig browserConfig) {
         this.browserConfig = browserConfig;
     }
 
@@ -43,6 +43,14 @@ public class UpdateTaskSteps {
         dashboardPage = null;
     }
 
+    /** Returns the LoginPage, creating it the first time it is needed. */
+    private LoginPage getLoginPage() {
+        if (loginPage == null) {
+            loginPage = new LoginPage(browserConfig.getDriver());
+        }
+        return loginPage;
+    }
+
     /** Returns the DashboardPage, creating it the first time it is needed. */
     private DashboardPage getDashboardPage() {
         if (dashboardPage == null) {
@@ -51,38 +59,15 @@ public class UpdateTaskSteps {
         return dashboardPage;
     }
 
-    @When("the user clicks on the edit button of a task to update it")
-    public void the_user_clicks_on_the_edit_button_of_a_task_to_update_it() {
-        getDashboardPage().clickPrimaryTaskEditButton();
-        //assertThat(getDashboardPage().checkIfPrimaryTaskHasText("Hello, world!"))
-                //.as("Text should still be there even in edit mode")
-                //.isTrue();
+    @When("the user clicks on the delete button of a task to update it")
+    public void the_user_clicks_on_the_delete_button_of_a_task_to_update_it() {
+        getDashboardPage().clickDeleteTaskButton();
     }
 
-    @When("the user inputs new text")
-    public void the_user_inputs_new_text() {
-        getDashboardPage().editPrimaryTaskText("foobar");
+    @Then("the task should be removed from the dashboard")
+    public void the_task_should_be_removed_from_the_dashboard() {
+        assertThat(getDashboardPage().checkIfNoPrimaryTask())
+                .as("Primary task should have been deleted")
+                .isTrue();
     }
-
-    @Then("the task should be updated and the UI should be updated")
-    public void the_task_should_be_updated_and_the_ui_should_be_updated() {
-        String text = getDashboardPage().getPrimaryTaskText();
-        assertThat(text)
-                .as("Primary task should have been updated with correct content")
-                .isEqualTo("foobar");
-    }
-
-    @When("the user inputs no text")
-    public void the_user_inputs_no_text() {
-        getDashboardPage().editPrimaryTaskText("");
-    }
-
-    @Then("the task should not be updated")
-    public void the_task_should_not_be_updated() {
-        String text = getDashboardPage().getPrimaryTaskText();
-        assertThat(text)
-                .as("Primary task should not have been updated")
-                .isEqualTo("Hello, world!");
-    }
-
 }
