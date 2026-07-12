@@ -64,51 +64,6 @@ public class UpdateTaskSteps {
         return dashboardPage;
     }
 
-    @Given("the user has registered")
-    public void the_user_has_registered() {
-        testDataHelper.registerUser(this.username, this.password);
-    }
-
-    @Given("the user has logged in")
-    public void the_user_has_logged_in() {
-        getLoginPage().navigateTo("http://localhost:4200");
-        getLoginPage().enterUsername(this.username);
-        assertThat(getLoginPage().verifyUsernameInput())
-                .as("Username should be typed")
-                .isTrue();
-        getLoginPage().enterPassword(this.password);
-        assertThat(getLoginPage().verifyPasswordInput())
-                .as("Password should be typed")
-                .isTrue();
-        getLoginPage().clickLogin();
-        assertThat(getLoginPage().hasErrorMessage())
-                .as("Should not have error logging in")
-                .isFalse();
-        assertThat(getLoginPage().isOnDashboard())
-                .as("Should be redirected to dashboard after logging in")
-                .isTrue();
-    }
-
-    @Given("the user is at the dashboard")
-    public void the_user_is_at_the_dashboard() {
-        assertThat(getDashboardPage().isOnDashboardPage())
-                .as("Should be on dashboard")
-                .isTrue();
-        assertThat(getDashboardPage().ensurePageIsLoaded())
-                .as("Dashboard elements should be fully loaded")
-                .isTrue();
-    }
-
-    @Given("the user creates a task")
-    public void the_user_creates_a_task() {
-        getDashboardPage().enterPrimaryTaskText("Hello, world!");
-        getDashboardPage().clickCreateTaskButton();
-        String text = getDashboardPage().getPrimaryTaskText();
-        assertThat(text)
-                .as("Primary task should have been created with correct content")
-                .isEqualTo("Hello, world!");
-    }
-
     @When("the user clicks on the edit button of a task to update it")
     public void the_user_clicks_on_the_edit_button_of_a_task_to_update_it() {
         getDashboardPage().clickPrimaryTaskEditButton();
@@ -128,6 +83,19 @@ public class UpdateTaskSteps {
         assertThat(text)
                 .as("Primary task should have been updated with correct content")
                 .isEqualTo("foobar");
+    }
+
+    @When("the user inputs no text")
+    public void the_user_inputs_no_text() {
+        getDashboardPage().editPrimaryTaskText("");
+    }
+
+    @Then("the task should not be updated")
+    public void the_task_should_not_be_updated() {
+        String text = getDashboardPage().getPrimaryTaskText();
+        assertThat(text)
+                .as("Primary task should not have been updated")
+                .isEqualTo("Hello, world!");
     }
 
 }
