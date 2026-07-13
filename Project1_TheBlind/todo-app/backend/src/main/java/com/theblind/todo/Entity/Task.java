@@ -57,12 +57,11 @@ public class Task {
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(name = "is_complete")
     private Boolean isComplete = false;
-    
-    @OnDelete(action = OnDeleteAction.CASCADE)
     
     @Column(name = "task_creation", updatable = false)
     private LocalDateTime taskCreation = LocalDateTime.now();
