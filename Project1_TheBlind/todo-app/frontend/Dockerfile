@@ -15,13 +15,9 @@ RUN npx ng build
 # Stage 2: Serve with nginx
 FROM nginx:alpine
 
-RUN addgroup --system angular && adduser --system angular --ingroup angular
-
 # Replace the default nginx config with our custom one
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-USER angular:angular
 
 # Copy only the compiled static assets from the build stage
 COPY --from=build /app/dist/todo/browser /usr/share/nginx/html
