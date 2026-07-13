@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 
@@ -20,6 +21,10 @@ public class DashboardPage {
     private final By primaryTaskTextInput  = By.cssSelector("input.context-input");
     private final By primaryTask           = By.cssSelector("li.task-node");
     private final By primaryTaskContent    = By.cssSelector("li.task-node span.task-content");
+    private final By primaryTaskContentEdittable    = By.className("task-edit-input");
+    private final By editTaskButton    = By.cssSelector("[title='Rename_task']");
+    private final By deleteTaskButton    = By.cssSelector("[title='Delete_task']");
+    private final By logoutButton    = By.className("btn-logout");
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
@@ -36,6 +41,12 @@ public class DashboardPage {
     public boolean ensurePageIsLoaded() {
         wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskTextInput));
         return driver.getCurrentUrl().contains("/dashboard");
+    }
+
+    // Logout and return to login page
+    public void logout() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(logoutButton));
+        driver.findElement(logoutButton).click();
     }
 
     /**
@@ -61,6 +72,16 @@ public class DashboardPage {
     }
 
     /**
+     * Deletes first task on dashboard.
+     */
+    public void clickDeleteTaskButton() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(deleteTaskButton));
+        driver.findElement(deleteTaskButton).click();
+        //try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        wait.until(ExpectedConditions.stalenessOf(driver.findElement(primaryTask)));
+    }
+
+    /**
      * Clicks Add without waiting for a task node to appear afterward.
      * Use for scenarios where blank input is submitted and no task is expected.
      */
@@ -81,11 +102,45 @@ public class DashboardPage {
     }
 
     /**
+     * Edits text content of first task in the list.
+     * Assumes task already exists.
+     * Uses span.task-content to avoid capturing checkbox/button text from the li.
+     */
+    public void editPrimaryTaskText(String text) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContentEdittable));
+        WebElement updateField = driver.findElement(primaryTaskContentEdittable);
+        int textLength = updateField.getAttribute("value").length();
+
+        for (int i = 0; i < textLength; i++) {
+            updateField.sendKeys(Keys.BACK_SPACE);
+        }
+
+        updateField.sendKeys(text);
+        updateField.sendKeys(Keys.ENTER);
+    }
+
+    /**
+     * Clicks the edit button of a task
+     */
+    public void clickPrimaryTaskEditButton() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(editTaskButton));
+        WebElement updateButton = driver.findElement(editTaskButton);
+        updateButton.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContentEdittable));
+    }
+
+
+    /**
      * Returns true when no task nodes are present in the DOM.
      * Used to assert that a blank submit did not create a task.
      */
     public boolean checkIfNoPrimaryTask() {
         return driver.findElements(primaryTask).isEmpty();
+    }
+
+    public boolean checkIfPrimaryTaskHasText(String text) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(primaryTaskContentEdittable));
+        return driver.findElement(primaryTaskContentEdittable).getAttribute("value") == text;
     }
 
     // True if the browser is on /dashboard
