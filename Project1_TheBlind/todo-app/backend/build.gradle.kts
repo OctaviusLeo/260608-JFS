@@ -50,3 +50,39 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// ── Run only child_tasks.feature: ./gradlew childTaskTest ──
+// Generates a junit-platform.properties with tag filter, prepends to classpath
+
+val childTaskTestResourceDir = layout.buildDirectory.dir("childTaskTestResources")
+
+val generateChildTaskProps by tasks.registering {
+	doLast {
+		val dir = childTaskTestResourceDir.get().asFile
+		dir.mkdirs()
+		val props = dir.resolve("junit-platform.properties")
+		props.writeText(
+			"cucumber.filter.tags=@child-tasks\n" +
+			"cucumber.glue=com.theblind.todo.e2e.steps,com.theblind.todo.e2e\n" +
+			"cucumber.features=classpath:features\n" +
+			"cucumber.plugin=pretty\n"
+		)
+	}
+}
+
+tasks.register<Test>("childTaskTest") {
+	description = "Runs only child task Cucumber feature"
+	group = "verification"
+
+	dependsOn(generateChildTaskProps)
+
+	// Point to test source set's compiled classes and classpath
+	testClassesDirs = sourceSets["test"].output.classesDirs
+	classpath = files(childTaskTestResourceDir) + sourceSets["test"].runtimeClasspath
+
+	useJUnitPlatform {
+		includeEngines("cucumber")
+	}
+
+	systemProperty("e2e.baseUrl", "http://localhost:4200")
+}
