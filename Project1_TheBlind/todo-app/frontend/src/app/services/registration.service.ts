@@ -7,7 +7,7 @@ import { catchError, Observable, of, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class RegistrationService {
-    private registerAPIURL = "http://localhost:8080/api/register";
+    private registerAPIURL = "/api/auth/register";
     private httpClient = inject(HttpClient);
 
     registerUser(user: User): Observable<User> {
