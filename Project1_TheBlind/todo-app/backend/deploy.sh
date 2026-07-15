@@ -1,24 +1,22 @@
 #!/bin/bash
-# ============================================================
-# deploy.sh — Build the backend Docker image locally and
-# deploy it to an AWS EC2 instance.
+# This script builds the backend Docker image on your local machine
+# and deploys it to the AWS EC2 instance over SSH.
 #
-# Usage:
+# How to use it:
 #   chmod +x deploy.sh
 #   ./deploy.sh <EC2_USER> <EC2_HOST> <PATH_TO_PEM_KEY>
 #
-# Example:
-#   ./deploy.sh ec2-user 3.92.100.55 ~/.ssh/theblind-key.pem
+# Real example:
+#   ./deploy.sh ec2-user ec2-3-138-107-74.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 #
-# Before running:
-#   1. Copy .env.example to .env and fill in real values.
-#   2. Make sure the EC2 instance is running and port 22 is open.
-#   3. Make sure Docker is installed on the EC2 instance.
-# ============================================================
+# Before you run this make sure:
+#   1. You copied .env.example to .env and filled in real values
+#   2. The EC2 instance is running and port 22 is open to your IP
+#   3. Docker is installed on the EC2 instance
 
-set -e  # stop the script immediately if any command fails
+set -e  # if any command fails the whole script stops
 
-# --- Arguments ---
+# Read the three arguments passed in when running the script
 EC2_USER="${1:?Usage: ./deploy.sh <EC2_USER> <EC2_HOST> <PEM_KEY_PATH>}"
 EC2_HOST="${2:?Usage: ./deploy.sh <EC2_USER> <EC2_HOST> <PEM_KEY_PATH>}"
 PEM_KEY="${3:?Usage: ./deploy.sh <EC2_USER> <EC2_HOST> <PEM_KEY_PATH>}"
@@ -26,49 +24,47 @@ PEM_KEY="${3:?Usage: ./deploy.sh <EC2_USER> <EC2_HOST> <PEM_KEY_PATH>}"
 IMAGE_NAME="theblind-backend"
 TAR_FILE="backend.tar.gz"
 
-# --- Load environment variables from .env ---
-# We read these here so the script can pass them to the container at runtime.
+# Load the environment variables from the .env file so we can pass them to the container
 if [ ! -f ".env" ]; then
     echo "ERROR: .env file not found. Copy .env.example to .env and fill in real values."
     exit 1
 fi
 
-# Export every line in .env that isn't a comment or blank
+# Pull in every variable from .env that is not a comment or empty line
 export $(grep -v '^#' .env | grep -v '^$' | xargs)
 
 echo "==> Step 1: Building the Docker image locally..."
-# The Dockerfile expects the fat JAR at build/libs/ so we need to run bootJar first.
-# Run this from the backend directory (where this script lives).
+# The Dockerfile needs the fat JAR to already exist at build/libs so we build it first
 ./gradlew bootJar -x test
 docker build -t "$IMAGE_NAME" .
 
-echo "==> Step 2: Saving the image to a compressed archive..."
-# docker save packages the full image; gzip shrinks it for faster transfer.
+echo "==> Step 2: Saving the image to a compressed file..."
+# docker save bundles the whole image and gzip makes it smaller for the upload
 docker save "$IMAGE_NAME" | gzip > "$TAR_FILE"
-echo "    Image saved to $TAR_FILE"
+echo "    Saved to $TAR_FILE"
 
-echo "==> Step 3: Copying the image to EC2..."
-# scp transfers the file over SSH using the .pem key.
+echo "==> Step 3: Uploading the image to EC2..."
+# scp copies the file to the EC2 home directory using the pem key for authentication
 scp -i "$PEM_KEY" -o StrictHostKeyChecking=no "$TAR_FILE" "$EC2_USER@$EC2_HOST:~/"
-echo "    Transfer complete."
+echo "    Upload complete."
 
-echo "==> Step 4: Loading the image and running the container on EC2..."
-# We pass all env vars inline so secrets never touch the EC2 filesystem as plain text.
-# The volume ~/todo-data is where todo.db will live across container restarts.
+echo "==> Step 4: Loading the image and starting the container on EC2..."
+# All env vars are passed directly into the run command so secrets never sit on the EC2 disk
+# The folder ~/todo-data on EC2 is where todo.db lives and persists across restarts
 ssh -i "$PEM_KEY" -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" bash << EOF
     set -e
 
     echo "--> Loading Docker image..."
     docker load < ~/$TAR_FILE
 
-    echo "--> Stopping and removing any existing container..."
-    # If there's no existing container these commands will simply do nothing.
+    echo "--> Stopping any container that is already running..."
+    # These two lines do nothing if there is no existing container to stop
     docker stop $IMAGE_NAME 2>/dev/null || true
     docker rm   $IMAGE_NAME 2>/dev/null || true
 
-    echo "--> Creating persistent data directory for SQLite..."
-    # This is the host-side folder that maps to /opt/app/data inside the container.
-    # todo.db writes here, so it survives container restarts and redeployments.
+    echo "--> Setting up the data folder for SQLite..."
+    # This folder on the EC2 host maps to /opt/app/data inside the container
+    # The database file todo.db goes here and stays even after the container is replaced
     mkdir -p ~/todo-data
 
     echo "--> Starting the backend container..."
@@ -83,26 +79,26 @@ ssh -i "$PEM_KEY" -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" bash << EOF
         -e CORS_ALLOWED_ORIGINS="$CORS_ALLOWED_ORIGINS" \\
         $IMAGE_NAME
 
-    echo "--> Container started. Waiting 10 seconds for the app to boot..."
+    echo "--> Waiting 10 seconds for the app to finish starting up..."
     sleep 10
 
     echo "--> Container status:"
     docker ps --filter "name=$IMAGE_NAME"
 
-    echo "--> Last 20 lines of container logs:"
+    echo "--> Last 20 lines of logs:"
     docker logs --tail 20 $IMAGE_NAME
 EOF
 
 echo ""
 echo "==> Deployment complete!"
-echo "    Backend API is available at: http://$EC2_HOST:8080"
+echo "    Backend is running at: http://$EC2_HOST:8080"
 echo "    Quick smoke test:"
 echo "      curl -s -o /dev/null -w '%{http_code}' http://$EC2_HOST:8080/api/register -X POST -H 'Content-Type: application/json' -d '{\"username\":\"test\",\"password\":\"test123\"}'"
 echo ""
-echo "    Share the EC2 public IP with your teammates:"
-echo "      Dev 1 (Frontend): needs it to set the Angular apiUrl"
-echo "      Dev 3 (CORS):     needs it to configure CORS_ALLOWED_ORIGINS"
+echo "    Remind your teammates:"
+echo "      Dev 1 (Frontend) needs the EC2 address to set the Angular apiUrl"
+echo "      Dev 3 (CORS) needs the EC2 address and the S3 URL for WebConfig.java"
 
-# Clean up the local tar file — it's large and not needed anymore
+# Remove the local tar file since we do not need it anymore
 rm -f "$TAR_FILE"
-echo "==> Cleaned up local $TAR_FILE"
+echo "==> Removed local $TAR_FILE"
