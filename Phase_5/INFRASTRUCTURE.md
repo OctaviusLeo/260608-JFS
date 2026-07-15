@@ -9,8 +9,8 @@
 | Provider      | AWS EC2                            |
 | Instance type | t2.micro (free tier eligible)      |
 | OS            | Amazon Linux 2023 (or Ubuntu 24.04 LTS) |
-| Region        | *(fill in after provisioning)*     |
-| Public IP/DNS | *(fill in after provisioning)*     |
+| Region        | US East (Ohio) us-east-2           |
+| Public IP/DNS | ec2-3-138-107-74.us-east-2.compute.amazonaws.com |
 
 ---
 
@@ -22,6 +22,7 @@
 | 8080 | TCP      | 0.0.0.0/0     | Spring Boot API — public during dev  |
 
 > Once the S3 frontend URL is known, consider locking port 8080 to that origin only.
+> S3 frontend URL: `http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com`
 
 ---
 
@@ -58,10 +59,10 @@ chmod +x Project1_TheBlind/todo-app/backend/deploy.sh
 **Run a deployment:**
 ```bash
 cd Project1_TheBlind/todo-app/backend
-./deploy.sh <EC2_USER> <EC2_PUBLIC_IP> <PATH_TO_PEM_KEY>
+./deploy.sh <EC2_USER> <EC2_PUBLIC_DNS> <PATH_TO_PEM_KEY>
 
-# Example:
-./deploy.sh ec2-user 3.92.100.55 ~/.ssh/theblind-key.pem
+# Example (using the actual instance):
+./deploy.sh ec2-user ec2-3-138-107-74.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 ```
 
 The script will:
@@ -85,7 +86,7 @@ Copy `.env.example` to `.env` and fill in actual values — `.env` is already in
 | `CORS_ALLOWED_ORIGINS`      | `cors.allowed-origins` *(see note)*  | Frontend URL allowed to make cross-origin requests |
 
 > **CORS note:** `CORS_ALLOWED_ORIGINS` requires Dev 3's `WebConfig.java` change to be
-> merged first. Once that's in, update this env var to the S3 bucket URL.
+> merged first. Once that's in, set this to `http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com` — already set in `.env.example`.
 
 ---
 
@@ -108,7 +109,7 @@ automatically before starting the container.
 
 To back up the database manually:
 ```bash
-scp -i your-key.pem ec2-user@<EC2_IP>:~/todo-data/todo.db ./todo-backup.db
+scp -i ../todo-app-key.pem ec2-user@ec2-3-138-107-74.us-east-2.compute.amazonaws.com:~/todo-data/todo.db ./todo-backup.db
 ```
 
 ---
@@ -120,14 +121,14 @@ After deployment, run this smoke test from your local machine:
 ```bash
 # Register a test user — expect HTTP 201
 curl -s -o /dev/null -w "%{http_code}\n" \
-  http://<EC2_PUBLIC_IP>:8080/api/register \
+  http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:8080/api/register \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "smoketest", "password": "smoketest123"}'
 
 # Log in — expect HTTP 200 and a JWT in the response body
 curl -s \
-  http://<EC2_PUBLIC_IP>:8080/api/auth/login \
+  http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:8080/api/auth/login \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "smoketest", "password": "smoketest123"}'
@@ -139,9 +140,9 @@ curl -s \
 
 Once the EC2 instance is running, share the following:
 
-- **Dev 1 (Frontend / S3):** EC2 public IP or DNS — needed to set `apiUrl` in
+- **Dev 1 (Frontend / S3):** EC2 DNS is `ec2-3-138-107-74.us-east-2.compute.amazonaws.com` — needed to set `apiUrl` in
   `src/environments/environment.prod.ts` before the Angular production build.
-- **Dev 3 (CORS):** EC2 public IP or DNS — needed to add `CORS_ALLOWED_ORIGINS` to
+- **Dev 3 (CORS):** EC2 DNS above + S3 URL `http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com` — needed to add `CORS_ALLOWED_ORIGINS` to
   the `docker run` command, and the S3 URL to configure `WebConfig.java`.
 
 ---
@@ -152,7 +153,7 @@ When code changes and you need to push a new version:
 
 ```bash
 # From the backend directory
-./deploy.sh ec2-user <EC2_IP> ~/.ssh/theblind-key.pem
+./deploy.sh ec2-user ec2-3-138-107-74.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 ```
 
 The script automatically stops the old container and starts a fresh one.
