@@ -1,5 +1,16 @@
 # Phase 5 — Infrastructure Documentation
 
+## S3 Frontend Hosting
+
+| Field       | Value                                                                    |
+| :---------- | :----------------------------------------------------------------------- |
+| Provider    | AWS S3                                                                   |
+| Bucket name | todo-app-storage-jam98                                                   |
+| Region      | US East (N. Virginia) us-east-1                                          |
+| Public URL  | http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com        |
+
+---
+
 ## EC2 Backend Deployment
 
 ### Instance Details
@@ -7,6 +18,7 @@
 | Field         | Value                              |
 | :------------ | :--------------------------------- |
 | Provider      | AWS EC2                            |
+| Instance name | todo-app-spring-server             |
 | Instance type | t2.micro (free tier eligible)      |
 | OS            | Amazon Linux 2023 (or Ubuntu 24.04 LTS) |
 | Region        | US East (Ohio) us-east-2           |
