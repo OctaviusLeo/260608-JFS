@@ -27,6 +27,7 @@ public class GlobalSecurityConfig {
     private CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
     private final String REQUEST_ORIGIN_URL = "http://localhost:4200";
+    private final String S3_ORIGIN_URL = "http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com";
 
     public GlobalSecurityConfig(
         JWTAuthenticationFilter jwtAuthenticationFilter, 
@@ -39,7 +40,7 @@ public class GlobalSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(REQUEST_ORIGIN_URL)); // Your frontend URL
+        configuration.setAllowedOrigins(Arrays.asList(REQUEST_ORIGIN_URL, S3_ORIGIN_URL)); // Your frontend URLs
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
