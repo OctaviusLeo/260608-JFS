@@ -1,29 +1,31 @@
-# --- Stage 1: Extract layers from the fat JAR ---
-# Use Java 21 to match the toolchain defined in build.gradle.kts
+# Stage 1 — pull the layers out of the fat JAR so we can copy them separately
+# This gives us better Docker layer caching (dependencies don't rebuild every time)
 FROM eclipse-temurin:21-jre-jammy AS preparer
 WORKDIR /opt/app
 COPY build/libs/todo-0.0.1-SNAPSHOT.jar app.jar
-# Extract layers into a dedicated subdirectory so stage 2 COPY paths are unambiguous.
-# Spring Boot 3.3+ uses jarmode=tools (jarmode=layertools was removed).
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
-# --- Stage 2: Create the minimal runtime image ---
+# Stage 2 — build the actual image we'll run
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /opt/app
 
-# Create a non-root user to run the app securely
-RUN addgroup --system spring && adduser --system spring --ingroup spring
-USER spring:spring
+# gosu lets us start as root, fix folder permissions, then switch to a normal user
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
 
-# Copy extracted application layers from the preparer stage.
-# Ordered from least to most frequently changed for optimal Docker layer cache reuse.
+# Create a non-root user so the app doesn't run as root inside the container
+RUN addgroup --system spring && adduser --system spring --ingroup spring \
+    && mkdir -p /opt/app/data && chown spring:spring /opt/app/data
+
+# Copy the app layers in order from least to most likely to change
+# This keeps the big dependencies layer cached unless a library actually changes
 COPY --from=preparer /opt/app/extracted/dependencies/ ./
 COPY --from=preparer /opt/app/extracted/spring-boot-loader/ ./
 COPY --from=preparer /opt/app/extracted/snapshot-dependencies/ ./
 COPY --from=preparer /opt/app/extracted/application/ ./
 
-# Inform Docker that the container listens on the standard port
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8080
 
-# JarLauncher is the entry point for Spring Boot's exploded layer structure
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["/entrypoint.sh"]

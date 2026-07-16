@@ -8,9 +8,9 @@ import { catchError, Observable, of, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class LoginService {
-    private loginAPIURL = "http://localhost:8080/api/auth/login";
+    // Relative path so nginx can proxy it to the backend in both local and Docker environments
+    private loginAPIURL = "/api/auth/login";
     private httpClient = inject(HttpClient);
-    // string of JSON object containing username, id, token, and token expiration time
     private loginInfo: Token | null = null;
 
     loginUser(user: User): Observable<Token> {
