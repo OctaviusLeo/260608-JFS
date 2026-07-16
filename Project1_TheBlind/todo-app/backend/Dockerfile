@@ -1,11 +1,26 @@
-# Stage 1 — pull the layers out of the fat JAR so we can copy them separately
-# This gives us better Docker layer caching (dependencies don't rebuild every time)
+# Stage 1 — compile the app inside Docker so no local Gradle install is needed
+# Using the official Gradle image means the build environment is always consistent
+FROM gradle:8-jdk21 AS builder
+WORKDIR /app
+
+# Copy dependency files first so Docker can cache this layer
+# The full source copy below won't bust this cache unless gradle files change
+COPY build.gradle.kts settings.gradle.kts ./
+COPY gradle/ gradle/
+
+# Copy the rest of the source code and build the fat JAR
+# Tests are skipped here because they run separately in the pipeline
+COPY src/ src/
+RUN gradle bootJar -x test --no-daemon
+
+# Stage 2 — extract the JAR into layers for better Docker layer caching
+# Splitting the JAR means dependencies don't get re-uploaded on every code change
 FROM eclipse-temurin:21-jre-jammy AS preparer
 WORKDIR /opt/app
-COPY build/libs/todo-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/build/libs/todo-0.0.1-SNAPSHOT.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
-# Stage 2 — build the actual image we'll run
+# Stage 3 — the final image that actually runs in production
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /opt/app
 
@@ -26,6 +41,8 @@ COPY --from=preparer /opt/app/extracted/application/ ./
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# The database file lives at /opt/app/data/todo.db
+# Mount a volume here to keep it alive across container restarts
 EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint.sh"]

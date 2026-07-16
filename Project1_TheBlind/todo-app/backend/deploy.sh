@@ -13,6 +13,7 @@
 #   1. You copied .env.example to .env and filled in real values
 #   2. The EC2 instance is running and port 22 is open to your IP
 #   3. Docker is installed on the EC2 instance
+#   Note: you no longer need to run Gradle locally — the Dockerfile compiles the app itself
 
 set -e  # if any command fails the whole script stops
 
@@ -34,8 +35,8 @@ fi
 export $(grep -v '^#' .env | grep -v '^$' | xargs)
 
 echo "==> Step 1: Building the Docker image locally..."
-# The Dockerfile needs the fat JAR to already exist at build/libs so we build it first
-./gradlew bootJar -x test
+# The Dockerfile now compiles the app inside Docker using the Gradle build stage
+# so there is no need to run Gradle locally at all — this avoids daemon crashes on Windows
 docker build -t "$IMAGE_NAME" .
 
 echo "==> Step 2: Saving the image to a compressed file..."
