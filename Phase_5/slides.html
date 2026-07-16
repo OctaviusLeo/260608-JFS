@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Blind — Phase 5 Presentation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; }
+  .deck { width: 100%; }
+  .slide {
+    width: 100%; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 60px 80px; border-bottom: 2px solid #1e293b;
+  }
+  .slide-number { font-size: 12px; color: #475569; margin-bottom: 16px; letter-spacing: 2px; text-transform: uppercase; }
+  h1 { font-size: 52px; font-weight: 700; color: #f8fafc; line-height: 1.1; margin-bottom: 16px; }
+  h2 { font-size: 36px; font-weight: 600; color: #f1f5f9; margin-bottom: 24px; }
+  h3 { font-size: 22px; font-weight: 600; color: #94a3b8; margin-bottom: 12px; }
+  p, li { font-size: 18px; line-height: 1.7; color: #cbd5e1; }
+  ul { padding-left: 24px; }
+  li { margin-bottom: 10px; }
+  .subtitle { font-size: 22px; color: #64748b; margin-bottom: 8px; }
+  .tag { display: inline-block; background: #1e40af; color: #bfdbfe; font-size: 13px; padding: 4px 12px; border-radius: 999px; margin-right: 8px; margin-bottom: 8px; }
+  .screenshot-box {
+    width: 100%; min-height: 320px;
+    border: 2px dashed #334155; border-radius: 12px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #1e293b; margin: 24px 0; padding: 24px; text-align: center;
+  }
+  .screenshot-box .label { font-size: 14px; color: #64748b; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .screenshot-box .icon { font-size: 48px; margin-bottom: 8px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .arch-box {
+    background: #1e293b; border-radius: 12px; padding: 28px;
+    border: 1px solid #334155;
+  }
+  .arch-arrow { text-align: center; font-size: 28px; color: #3b82f6; margin: 8px 0; }
+  .arch-node {
+    background: #0f172a; border: 1px solid #3b82f6;
+    border-radius: 8px; padding: 12px 20px; text-align: center;
+    font-size: 16px; color: #93c5fd; margin: 6px 0;
+  }
+  .stage-row { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+  .stage {
+    flex: 1; min-width: 120px; background: #1e293b;
+    border: 1px solid #334155; border-radius: 10px;
+    padding: 18px; text-align: center;
+  }
+  .stage .stage-name { font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; }
+  .stage .stage-desc { font-size: 13px; color: #64748b; }
+  .stage.green { border-color: #16a34a; background: #052e16; }
+  .stage.green .stage-name { color: #4ade80; }
+  .stage.red { border-color: #dc2626; background: #1c0a0a; }
+  .stage.red .stage-name { color: #f87171; }
+  .url-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px; font-family: monospace; font-size: 15px; color: #7dd3fc; margin: 8px 0; }
+  .qa-item { background: #1e293b; border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; border-left: 3px solid #3b82f6; }
+  .qa-item .question { font-size: 16px; font-weight: 600; color: #93c5fd; margin-bottom: 8px; }
+  .qa-item .answer { font-size: 15px; color: #94a3b8; }
+  .title-slide { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
+  .accent { color: #60a5fa; }
+  .print-note { display: none; }
+  @media print {
+    .slide { min-height: auto; page-break-after: always; padding: 40px; }
+    body { background: white; color: black; }
+    .print-note { display: block; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- SLIDE 1: Title -->
+<div class="slide title-slide">
+  <div class="slide-number">Slide 01</div>
+  <h1>From Code<br/>to <span class="accent">Cloud</span></h1>
+  <p class="subtitle">A Full-Stack DevOps Lifecycle</p>
+  <br/>
+  <p style="color:#475569; font-size:16px;">Team: The Blind &nbsp;|&nbsp; Phase 5 Presentation &nbsp;|&nbsp; Group ID: com.theblind</p>
+  <br/>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+    <span class="tag">Spring Boot 4.1</span>
+    <span class="tag">Angular</span>
+    <span class="tag">Docker</span>
+    <span class="tag">Jenkins</span>
+    <span class="tag">AWS EC2</span>
+    <span class="tag">AWS S3</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: What We Built -->
+<div class="slide">
+  <div class="slide-number">Slide 02</div>
+  <h2>What We Built</h2>
+  <div class="two-col">
+    <div>
+      <h3>The Application</h3>
+      <ul>
+        <li>Secure Todo app with JWT authentication</li>
+        <li>Users can register, log in, and manage tasks with subtasks</li>
+        <li>Data isolation — each user only sees their own tasks</li>
+        <li>Cascading deletes on parent tasks</li>
+      </ul>
+      <br/>
+      <h3>The Stack</h3>
+      <ul>
+        <li>Backend: Spring Boot + SQLite + Hibernate</li>
+        <li>Frontend: Angular + RxJS</li>
+        <li>Auth: JWT Bearer tokens</li>
+      </ul>
+    </div>
+    <div>
+      <div class="screenshot-box">
+        <div class="icon">🖥️</div>
+        <p style="color:#94a3b8;">Screenshot: Live app at S3 URL</p>
+        <p class="label">todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Architecture -->
+<div class="slide">
+  <div class="slide-number">Slide 03</div>
+  <h2>System Architecture</h2>
+  <div class="two-col">
+    <div class="arch-box">
+      <div class="arch-node">👤 User Browser</div>
+      <div class="arch-arrow">↓ visits S3 URL</div>
+      <div class="arch-node">☁️ AWS S3 — Angular App<br/><small style="color:#64748b;">us-east-1 · todo-app-storage-jam98</small></div>
+      <div class="arch-arrow">↓ /api/* requests proxied by Nginx</div>
+      <div class="arch-node">🖥️ AWS EC2 — Spring Boot (Docker)<br/><small style="color:#64748b;">us-east-2 · todo-app-spring-server · :8080</small></div>
+      <div class="arch-arrow">↓ reads/writes</div>
+      <div class="arch-node">🗄️ SQLite — todo.db<br/><small style="color:#64748b;">persisted via Docker volume mount</small></div>
+    </div>
+    <div>
+      <h3>Key Design Decisions</h3>
+      <ul>
+        <li>S3 and EC2 are in different regions — this is intentional and works fine over the internet</li>
+        <li>Nginx proxies /api calls so the browser only talks to one origin</li>
+        <li>SQLite writes to a host volume so the database survives container restarts</li>
+        <li>JWT is stateless — no session storage on the server</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: CI/CD Pipeline -->
+<div class="slide">
+  <div class="slide-number">Slide 04</div>
+  <h2>The CI/CD Pipeline</h2>
+  <p style="margin-bottom:20px;">Every push to <code style="color:#60a5fa;">main</code> automatically triggers Jenkins to run through all four stages.</p>
+  <div class="stage-row">
+    <div class="stage green">
+      <div class="stage-name">① Checkout</div>
+      <div class="stage-desc">Pull latest code from GitHub</div>
+    </div>
+    <div class="stage green">
+      <div class="stage-name">② Build</div>
+      <div class="stage-desc">Gradle bootJar + Docker image build</div>
+    </div>
+    <div class="stage green">
+      <div class="stage-name">③ Test</div>
+      <div class="stage-desc">REST Assured + Cucumber E2E — pipeline stops if anything fails</div>
+    </div>
+    <div class="stage green">
+      <div class="stage-name">④ Deploy</div>
+      <div class="stage-desc">Push Docker image to EC2, sync Angular build to S3</div>
+    </div>
+  </div>
+  <div class="screenshot-box" style="min-height:200px;">
+    <div class="icon">✅</div>
+    <p style="color:#94a3b8;">Screenshot: Jenkins dashboard showing all 4 stages green</p>
+    <p class="label">Jenkins — http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:9090</p>
+  </div>
+</div>
+
+<!-- SLIDE 5: Live Demo - The Change -->
+<div class="slide">
+  <div class="slide-number">Slide 05 — Live Demo</div>
+  <h2>Step 1: Push a Change</h2>
+  <p style="margin-bottom:20px;">Make a small visible change to the frontend and push it to GitHub.</p>
+  <div class="arch-box" style="margin-bottom:20px;">
+    <p style="font-family:monospace; color:#4ade80; font-size:15px;">
+      git add .<br/>
+      git commit -m "demo: update UI text for presentation"<br/>
+      git push origin main
+    </p>
+  </div>
+  <div class="screenshot-box" style="min-height:180px;">
+    <div class="icon">💻</div>
+    <p style="color:#94a3b8;">Screenshot: VS Code with the change + terminal showing the git push</p>
+    <p class="label">GitHub — https://github.com/OctaviusLeo/260608-JFS</p>
+  </div>
+</div>
+
+<!-- SLIDE 6: Live Demo - Jenkins Running -->
+<div class="slide">
+  <div class="slide-number">Slide 06 — Live Demo</div>
+  <h2>Step 2: Jenkins Detects and Runs</h2>
+  <p style="margin-bottom:20px;">Jenkins polls GitHub and automatically starts the pipeline within seconds of the push.</p>
+  <div class="stage-row">
+    <div class="stage green"><div class="stage-name">① Checkout</div><div class="stage-desc">Code pulled ✓</div></div>
+    <div class="stage green"><div class="stage-name">② Build</div><div class="stage-desc">Image built ✓</div></div>
+    <div class="stage green"><div class="stage-name">③ Test</div><div class="stage-desc">All tests passed ✓</div></div>
+    <div class="stage green"><div class="stage-name">④ Deploy</div><div class="stage-desc">Live on AWS ✓</div></div>
+  </div>
+  <div class="screenshot-box" style="min-height:180px;">
+    <div class="icon">🚀</div>
+    <p style="color:#94a3b8;">Screenshot: Jenkins pipeline mid-run or completed green</p>
+    <p class="label">All stages green — build number visible in top left</p>
+  </div>
+</div>
+
+<!-- SLIDE 7: Live Demo - Change is Live -->
+<div class="slide">
+  <div class="slide-number">Slide 07 — Live Demo</div>
+  <h2>Step 3: Change is Live on AWS</h2>
+  <p style="margin-bottom:20px;">Hard refresh the S3 URL. The change pushed 60 seconds ago is now in production.</p>
+  <div class="two-col">
+    <div class="screenshot-box">
+      <div class="icon">🌐</div>
+      <p style="color:#94a3b8;">Screenshot: Browser showing the updated frontend</p>
+      <p class="label">Before the change</p>
+    </div>
+    <div class="screenshot-box">
+      <div class="icon">✨</div>
+      <p style="color:#94a3b8;">Screenshot: Browser showing the updated frontend</p>
+      <p class="label">After the change — same S3 URL</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Failure Case -->
+<div class="slide">
+  <div class="slide-number">Slide 08 — Live Demo</div>
+  <h2>The Pipeline as a Quality Gate</h2>
+  <p style="margin-bottom:20px;">Push a broken change. Jenkins catches it and stops before deploying anything.</p>
+  <div class="stage-row">
+    <div class="stage green"><div class="stage-name">① Checkout</div><div class="stage-desc">Code pulled ✓</div></div>
+    <div class="stage green"><div class="stage-name">② Build</div><div class="stage-desc">Image built ✓</div></div>
+    <div class="stage red"><div class="stage-name">③ Test</div><div class="stage-desc">FAILED — pipeline stopped ✗</div></div>
+    <div class="stage"><div class="stage-name">④ Deploy</div><div class="stage-desc">Never reached</div></div>
+  </div>
+  <div class="screenshot-box" style="min-height:180px;">
+    <div class="icon">🛑</div>
+    <p style="color:#94a3b8;">Screenshot: Jenkins showing Test stage red, Deploy stage not reached</p>
+    <p class="label">Broken code never touched AWS</p>
+  </div>
+</div>
+
+<!-- SLIDE 9: Testing Strategy -->
+<div class="slide">
+  <div class="slide-number">Slide 09</div>
+  <h2>Testing Strategy</h2>
+  <div class="two-col">
+    <div>
+      <h3>REST Assured — API Layer</h3>
+      <ul>
+        <li>Tests every endpoint directly over HTTP</li>
+        <li>Verifies correct status codes (201, 200, 404, 401)</li>
+        <li>Validates response body structure</li>
+        <li>Runs against H2 in-memory DB during CI</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Cucumber + Selenium — E2E Layer</h3>
+      <ul>
+        <li>Tests full user flows in a real browser (headless Chrome)</li>
+        <li>Covers: register → login → create task → complete task → delete</li>
+        <li>Written in plain English feature files anyone can read</li>
+        <li>Catches integration issues the API tests cannot see</li>
+      </ul>
+    </div>
+  </div>
+  <br/>
+  <div class="arch-box">
+    <p style="color:#94a3b8; font-size:15px;">Together these two suites give us confidence at the contract level and the user experience level. If both pass, the app is working correctly end to end.</p>
+  </div>
+</div>
+
+<!-- SLIDE 10: Technical Deep Dive -->
+<div class="slide">
+  <div class="slide-number">Slide 10</div>
+  <h2>Technical Deep Dive</h2>
+  <div class="qa-item">
+    <div class="question">Why structure the pipeline as Checkout → Build → Test → Deploy?</div>
+    <div class="answer">Each stage depends on the one before it. We fail fast — if the build breaks we skip the test run entirely. No wasted time or broken deployments.</div>
+  </div>
+  <div class="qa-item">
+    <div class="question">How did Docker help the pipeline?</div>
+    <div class="answer">The same Docker image runs in Jenkins and on EC2. There is no environment mismatch between CI and production. If it passes in Jenkins it will behave the same on AWS.</div>
+  </div>
+  <div class="qa-item">
+    <div class="question">How do S3 and EC2 work together?</div>
+    <div class="answer">S3 serves the static Angular files. The Nginx config inside the frontend container proxies any /api request to the EC2 backend. The browser only ever talks to one origin so there are no CORS issues.</div>
+  </div>
+</div>
+
+<!-- SLIDE 11: DevOps Reflection -->
+<div class="slide">
+  <div class="slide-number">Slide 11</div>
+  <h2>What We Learned</h2>
+  <ul style="max-width:760px;">
+    <li>Automated testing changed how we write code. Knowing every push runs the full suite made us more careful about what we committed.</li>
+    <li>The biggest challenge was getting Docker, Jenkins, and AWS all talking to each other — especially the networking between the Nginx proxy and the backend service name.</li>
+    <li>Docker made the "it works on my machine" problem disappear. Once the image was built it behaved the same everywhere.</li>
+    <li>Moving from manual deployment to a single git push felt like a significant shift in how software delivery works.</li>
+  </ul>
+</div>
+
+<!-- SLIDE 12: Thank You -->
+<div class="slide title-slide">
+  <div class="slide-number">Slide 12</div>
+  <h1>Thank <span class="accent">You</span></h1>
+  <br/>
+  <p class="subtitle">Team: The Blind</p>
+  <br/>
+  <div class="url-box">Frontend: http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com</div>
+  <div class="url-box">Backend API: http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:8080</div>
+  <div class="url-box">Jenkins: http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:9090</div>
+  <div class="url-box">GitHub: https://github.com/OctaviusLeo/260608-JFS</div>
+</div>
+
+</div><!-- end deck -->
+</body>
+</html>
