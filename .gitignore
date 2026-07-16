@@ -247,3 +247,7 @@ gradle-app.setting
 
 # AWS SSH private keys — never commit these
 *.pem
+
+# Local presentation files — kept on disk but not tracked in git
+Phase_5/PRESENTATION_GUIDE.md
+Phase_5/slides.html
