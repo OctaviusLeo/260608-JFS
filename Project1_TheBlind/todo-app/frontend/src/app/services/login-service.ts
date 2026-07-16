@@ -3,13 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from '../models/user.model';
 import { Token } from '../models/token.model';
 import { catchError, Observable, of, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-    // Relative path so nginx can proxy it to the backend in both local and Docker environments
-    private loginAPIURL = "/api/auth/login";
+    private loginAPIURL = `${environment.apiBaseUrl}/api/auth/login`;
     private httpClient = inject(HttpClient);
     private loginInfo: Token | null = null;
 

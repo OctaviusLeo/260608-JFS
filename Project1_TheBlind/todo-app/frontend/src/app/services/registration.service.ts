@@ -2,12 +2,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable, Service } from '@angular/core';
 import { User } from '../models/user.model';
 import { catchError, Observable, of, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RegistrationService {
-    private registerAPIURL = "/api/auth/register";
+    private registerAPIURL = `${environment.apiBaseUrl}/api/auth/register`;
     private httpClient = inject(HttpClient);
 
     registerUser(user: User): Observable<User> {
