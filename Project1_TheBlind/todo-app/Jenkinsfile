@@ -42,9 +42,10 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Starting build process for ${env.APP_NAME}..."
-                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                sh 'cd ./backend'
                 // 'bootJar' compiles all sources and packages them into a
                 // self-contained JAR including the embedded Tomcat server.
+                sh 'chmod +x ./gradlew'
                 sh './gradlew clean bootJar'
             }
         }
@@ -69,7 +70,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running automated test suites...'
-                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                sh 'cd ./backend'
                 // 'clean test' ensures a fresh compilation before running tests,
                 // avoiding false passes caused by cached class files.
                 sh './gradlew clean test'
@@ -100,13 +101,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application to production server...'
-                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                sh 'cd ./backend'
                 // Build the Docker image tagged as 'todo-app'.
                 // The Dockerfile must be in the backend/ subdirectory.
-                sh 'docker build -t todo-app .'
-                // Start the container in detached mode (-d) so the pipeline
-                // step returns immediately rather than blocking indefinitely.
-                sh 'docker run -d -p 8080:8080 --name running-spring-container todo-app'
+                sh './deploy.sh ubuntu ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem'
             }
         }
     }
