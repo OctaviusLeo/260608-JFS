@@ -6,30 +6,26 @@
  * Jenkins whenever a change is pushed to the configured source control branch.
  *
  * Pipeline overview:
- *   1. Build  — builds a Docker image (Gradle compiles inside Docker, no local install needed)
- *   2. Test   — runs the full automated test suite (unit + integration) via Gradle inside Docker
- *   3. Deploy — starts a container from the built image on the Jenkins host
+ *   1. Build  — compiles the source code and packages it as an executable JAR
+ *   2. Test   — runs the full automated test suite (unit + integration)
+ *   3. Deploy — builds a Docker image from the JAR and starts a container
  *
  * Prerequisites:
- *   - A Jenkins agent with Docker available on PATH
- *   - The backend Dockerfile must exist at Project1_TheBlind/todo-app/backend/Dockerfile
+ *   - A Jenkins agent with Java 21, Gradle, and Docker available on PATH
+ *   - The backend Dockerfile must exist at todo-app/backend/Dockerfile
  *   - Port 8080 must be available on the host when the Deploy stage runs
- *   - Jenkins credentials store must have a secret named 'jwt-secret-key'
  *
  * Environment variables:
- *   APP_NAME       — logical name used in log messages
- *   IMAGE_NAME     — Docker image tag used across Build and Deploy stages
- *   CONTAINER_NAME — name given to the running container
+ *   APP_NAME — logical name of the application; used in log messages
  */
 pipeline {
     // Run on any available Jenkins agent (worker node).
+    // Change to 'agent { label "my-label" }' to target a specific node.
     agent any
 
     // Global environment variables available to all stages and post-conditions.
     environment {
-        APP_NAME       = 'todo-app'
-        IMAGE_NAME     = 'theblind-backend'
-        CONTAINER_NAME = 'running-spring-container'
+        APP_NAME = 'todo-app'
     }
 
     stages {
@@ -37,97 +33,80 @@ pipeline {
         /**
          * Build Stage
          *
-         * Builds the Docker image using the multi-stage Dockerfile.
-         * Gradle compiles the source and produces the fat JAR inside the
-         * Docker build process — no local Gradle or Java install required
-         * on the Jenkins agent.
+         * Compiles the Java source code and produces an executable fat JAR
+         * using the Spring Boot Gradle plugin. The 'clean' task ensures no
+         * stale artefacts from a previous run interfere with the new build.
          *
-         * Output: a local Docker image tagged as IMAGE_NAME
+         * Output: build/libs/todo-0.0.1-SNAPSHOT.jar
          */
         stage('Build') {
             steps {
-                echo "Starting build for ${env.APP_NAME}..."
-
-                // dir() sets the working directory for all steps inside it.
-                // Each sh call is a separate shell so cd alone would not carry over.
-                dir('Project1_TheBlind/todo-app/backend') {
-                    // Gradle runs inside the Docker build stage, not on the host.
-                    // This avoids the daemon crash issue on Windows and CI environments.
-                    sh 'docker build -t $IMAGE_NAME .'
-                }
+                echo "Starting build process for ${env.APP_NAME}..."
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                // 'bootJar' compiles all sources and packages them into a
+                // self-contained JAR including the embedded Tomcat server.
+                sh './gradlew clean bootJar'
             }
         }
 
         /**
          * Test Stage
          *
-         * Runs the full test suite inside a temporary Docker container using
-         * the same image produced in the Build stage. Tests run against an
-         * in-memory H2 database via application-test.properties so they are
-         * fully isolated and never touch the production todo.db file.
+         * Executes the full test suite including:
+         *   - Unit tests (TaskServiceTest, etc.)
+         *   - Controller/web layer tests (TaskControllerTest)
+         *   - Integration tests (UserRegistrationTests, UserLoginTests)
+         *   - Security access control tests (SecurityAccessControlTest)
+         *   - REST Assured tests (LoginTest, GetTasksByCurrentUserTest)
          *
-         * Includes:
-         *   - Unit tests (TaskServiceTest)
-         *   - Controller tests (TaskControllerTest)
-         *   - Security tests (SecurityAccessControlTest)
-         *   - REST Assured integration tests (LoginTest, RegistrationTest, etc.)
+         * The test profile is activated automatically by application-test.properties,
+         * which swaps SQLite for an in-memory H2 database so tests are isolated
+         * and do not touch the production todo.db file.
          *
-         * If any test fails this stage is marked as failed and Deploy is skipped,
-         * preventing a broken build from reaching production.
+         * If any test fails this stage is marked as failed and the Deploy stage
+         * is skipped, preventing a broken build from reaching production.
          */
         stage('Test') {
             steps {
                 echo 'Running automated test suites...'
-
-                dir('Project1_TheBlind/todo-app/backend') {
-                    // Run tests inside Docker using the gradle image so no
-                    // local Gradle install is needed on the Jenkins agent.
-                    // The H2 in-memory DB is activated via application-test.properties.
-                    sh 'docker run --rm -v $PWD:/app -w /app gradle:8-jdk21 gradle test -x bootJar --no-daemon'
-                }
-            }
-            post {
-                always {
-                    // Publish JUnit results so failures are visible on the Jenkins dashboard.
-                    junit allowEmptyResults: true,
-                          testResults: 'Project1_TheBlind/todo-app/backend/build/test-results/**/*.xml'
-                }
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                // 'clean test' ensures a fresh compilation before running tests,
+                // avoiding false passes caused by cached class files.
+                sh './gradlew clean test'
             }
         }
 
         /**
          * Deploy Stage
          *
-         * Stops any existing container from a previous deployment, then starts
-         * a fresh container from the image built in the Build stage.
+         * Builds a Docker image from the backend Dockerfile and starts a
+         * container in detached mode, exposing the application on port 8080.
          *
-         * The old container is stopped first so re-deployments are idempotent.
-         * Env vars are passed from Jenkins credentials and environment so no
-         * secrets are hardcoded in this file.
+         * Step breakdown:
+         *   docker build  — builds the image using the multi-stage Dockerfile,
+         *                   which extracts Spring Boot JAR layers for efficient
+         *                   layer caching on subsequent builds.
+         *   docker run    — starts a new detached container named
+         *                   'running-spring-container', mapping host port 8080
+         *                   to container port 8080.
+         *
+         * Note: if a container named 'running-spring-container' is already
+         * running from a previous deployment, this step will fail. A pre-step
+         * to stop and remove the old container should be added for idempotent
+         * re-deployments:
+         *   sh 'docker stop running-spring-container || true'
+         *   sh 'docker rm running-spring-container || true'
          */
         stage('Deploy') {
             steps {
-                echo 'Deploying application...'
-
-                // Stop and remove the old container if it is running.
-                // The '|| true' prevents the pipeline from failing if no container exists yet.
-                sh 'docker stop $CONTAINER_NAME || true'
-                sh 'docker rm   $CONTAINER_NAME || true'
-
-                // Start a fresh container with the required environment variables.
-                // SPRING_DATASOURCE_URL points to the volume-mounted SQLite file.
-                sh '''
-                    docker run -d \
-                        --name $CONTAINER_NAME \
-                        --restart unless-stopped \
-                        -p 8080:8080 \
-                        -v ~/todo-data:/opt/app/data \
-                        -e SPRING_DATASOURCE_URL=jdbc:sqlite:/opt/app/data/todo.db \
-                        -e SECURITY_JWT_EXPIRATION_TIME=3600000 \
-                        $IMAGE_NAME
-                '''
-
-                echo "Container started. App is at http://localhost:8080"
+                echo 'Deploying application to production server...'
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                // Build the Docker image tagged as 'todo-app'.
+                // The Dockerfile must be in the backend/ subdirectory.
+                sh 'docker build -t todo-app .'
+                // Start the container in detached mode (-d) so the pipeline
+                // step returns immediately rather than blocking indefinitely.
+                sh 'docker run -d -p 8080:8080 --name running-spring-container todo-app'
             }
         }
     }
@@ -136,21 +115,27 @@ pipeline {
      * Post-build Actions
      *
      * These blocks run after all stages complete, regardless of outcome.
+     * They are evaluated in order: always → success or failure.
      *
-     *   always  — runs unconditionally; used for cleanup or archiving reports
-     *   success — runs only when every stage passed
-     *   failure — runs only when any stage failed; replace echo with a real
-     *             notification step (emailext, slackSend) to alert the team
+     *   always  — runs unconditionally; used for workspace cleanup or
+     *             archiving test reports.
+     *   success — runs only when every stage passed; used for notifications
+     *             or triggering downstream pipelines.
+     *   failure — runs only when any stage failed; used for alert
+     *             notifications (email, Slack, etc.) so the team is informed.
      */
     post {
         always {
-            echo 'Pipeline finished. Cleaning up workspace...'
+            // Placeholder for workspace cleanup or publishing test results.
+            // Example: junit 'build/test-results/**/*.xml'
+            echo 'Cleaning up workspace...'
         }
         success {
             echo 'Pipeline completed successfully!'
         }
         failure {
-            // Replace this echo with a real notification step in production.
+            // Replace this echo with a real notification step in production,
+            // e.g. emailext or slackSend, to alert the team on broken builds.
             echo 'Pipeline failed. Sending alert notification...'
         }
     }
