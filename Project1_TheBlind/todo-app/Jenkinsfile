@@ -1,0 +1,157 @@
+/**
+ * Jenkinsfile — CI/CD Pipeline for the Todo App
+ *
+ * This declarative pipeline automates the full build, test, and deployment
+ * lifecycle for the Spring Boot backend. It is triggered automatically by
+ * Jenkins whenever a change is pushed to the configured source control branch.
+ *
+ * Pipeline overview:
+ *   1. Build  — builds a Docker image (Gradle compiles inside Docker, no local install needed)
+ *   2. Test   — runs the full automated test suite (unit + integration) via Gradle inside Docker
+ *   3. Deploy — starts a container from the built image on the Jenkins host
+ *
+ * Prerequisites:
+ *   - A Jenkins agent with Docker available on PATH
+ *   - The backend Dockerfile must exist at Project1_TheBlind/todo-app/backend/Dockerfile
+ *   - Port 8080 must be available on the host when the Deploy stage runs
+ *   - Jenkins credentials store must have a secret named 'jwt-secret-key'
+ *
+ * Environment variables:
+ *   APP_NAME       — logical name used in log messages
+ *   IMAGE_NAME     — Docker image tag used across Build and Deploy stages
+ *   CONTAINER_NAME — name given to the running container
+ */
+pipeline {
+    // Run on any available Jenkins agent (worker node).
+    agent any
+
+    // Global environment variables available to all stages and post-conditions.
+    environment {
+        APP_NAME       = 'todo-app'
+        IMAGE_NAME     = 'theblind-backend'
+        CONTAINER_NAME = 'running-spring-container'
+    }
+
+    stages {
+
+        /**
+         * Build Stage
+         *
+         * Builds the Docker image using the multi-stage Dockerfile.
+         * Gradle compiles the source and produces the fat JAR inside the
+         * Docker build process — no local Gradle or Java install required
+         * on the Jenkins agent.
+         *
+         * Output: a local Docker image tagged as IMAGE_NAME
+         */
+        stage('Build') {
+            steps {
+                echo "Starting build for ${env.APP_NAME}..."
+
+                // dir() sets the working directory for all steps inside it.
+                // Each sh call is a separate shell so cd alone would not carry over.
+                dir('Project1_TheBlind/todo-app/backend') {
+                    // Gradle runs inside the Docker build stage, not on the host.
+                    // This avoids the daemon crash issue on Windows and CI environments.
+                    sh 'docker build -t $IMAGE_NAME .'
+                }
+            }
+        }
+
+        /**
+         * Test Stage
+         *
+         * Runs the full test suite inside a temporary Docker container using
+         * the same image produced in the Build stage. Tests run against an
+         * in-memory H2 database via application-test.properties so they are
+         * fully isolated and never touch the production todo.db file.
+         *
+         * Includes:
+         *   - Unit tests (TaskServiceTest)
+         *   - Controller tests (TaskControllerTest)
+         *   - Security tests (SecurityAccessControlTest)
+         *   - REST Assured integration tests (LoginTest, RegistrationTest, etc.)
+         *
+         * If any test fails this stage is marked as failed and Deploy is skipped,
+         * preventing a broken build from reaching production.
+         */
+        stage('Test') {
+            steps {
+                echo 'Running automated test suites...'
+
+                dir('Project1_TheBlind/todo-app/backend') {
+                    // Run tests inside Docker using the gradle image so no
+                    // local Gradle install is needed on the Jenkins agent.
+                    // The H2 in-memory DB is activated via application-test.properties.
+                    sh 'docker run --rm -v $PWD:/app -w /app gradle:8-jdk21 gradle test -x bootJar --no-daemon'
+                }
+            }
+            post {
+                always {
+                    // Publish JUnit results so failures are visible on the Jenkins dashboard.
+                    junit allowEmptyResults: true,
+                          testResults: 'Project1_TheBlind/todo-app/backend/build/test-results/**/*.xml'
+                }
+            }
+        }
+
+        /**
+         * Deploy Stage
+         *
+         * Stops any existing container from a previous deployment, then starts
+         * a fresh container from the image built in the Build stage.
+         *
+         * The old container is stopped first so re-deployments are idempotent.
+         * Env vars are passed from Jenkins credentials and environment so no
+         * secrets are hardcoded in this file.
+         */
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+
+                // Stop and remove the old container if it is running.
+                // The '|| true' prevents the pipeline from failing if no container exists yet.
+                sh 'docker stop $CONTAINER_NAME || true'
+                sh 'docker rm   $CONTAINER_NAME || true'
+
+                // Start a fresh container with the required environment variables.
+                // SPRING_DATASOURCE_URL points to the volume-mounted SQLite file.
+                sh '''
+                    docker run -d \
+                        --name $CONTAINER_NAME \
+                        --restart unless-stopped \
+                        -p 8080:8080 \
+                        -v ~/todo-data:/opt/app/data \
+                        -e SPRING_DATASOURCE_URL=jdbc:sqlite:/opt/app/data/todo.db \
+                        -e SECURITY_JWT_EXPIRATION_TIME=3600000 \
+                        $IMAGE_NAME
+                '''
+
+                echo "Container started. App is at http://localhost:8080"
+            }
+        }
+    }
+
+    /**
+     * Post-build Actions
+     *
+     * These blocks run after all stages complete, regardless of outcome.
+     *
+     *   always  — runs unconditionally; used for cleanup or archiving reports
+     *   success — runs only when every stage passed
+     *   failure — runs only when any stage failed; replace echo with a real
+     *             notification step (emailext, slackSend) to alert the team
+     */
+    post {
+        always {
+            echo 'Pipeline finished. Cleaning up workspace...'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            // Replace this echo with a real notification step in production.
+            echo 'Pipeline failed. Sending alert notification...'
+        }
+    }
+}
