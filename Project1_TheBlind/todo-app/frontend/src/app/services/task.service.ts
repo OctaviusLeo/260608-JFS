@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '../models/task.model';
+import { environment } from '../../environments/environment';
 
 /**
  * TaskService (Task Management UI Engineer).
@@ -22,7 +23,7 @@ import { Task, CreateTaskPayload, UpdateTaskPayload } from '../models/task.model
 export class TaskService {
   private readonly http = inject(HttpClient);
 
-  private readonly BASE_URL = '/api/tasks';
+  private readonly BASE_URL = `${environment.apiBaseUrl}/api/tasks`;
 
   /** GET /api/tasks - fetch all of the current user's tasks (flat list). */
   getTasks(): Observable<Task[]> {
