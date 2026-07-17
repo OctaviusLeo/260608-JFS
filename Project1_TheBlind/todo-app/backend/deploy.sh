@@ -28,7 +28,9 @@ if [ ! -f ".env" ]; then
 fi
 
 # Load env vars from .env, skip comments and blank lines
-export $(grep -v '^#' .env | grep -v '^$' | xargs)
+set -a
+source .env
+set +a
 
 echo "==> Step 1: Building the Docker image..."
 # Gradle runs inside Docker now so no local Gradle daemon is needed
