@@ -6,7 +6,7 @@
 #   ./deploy.sh <EC2_USER> <EC2_HOST> <PATH_TO_PEM_KEY>
 #
 # Example:
-#   ./deploy.sh ubuntu ec2-3-138-107-74.us-east-2.compute.amazonaws.com ../todo-app-key.pem
+#   ./deploy.sh ubuntu ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 #
 # Requirements:
 #   1. Copy .env.example to .env and fill in real values
@@ -53,6 +53,10 @@ ssh -i "$PEM_KEY" -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" bash << EOF
     docker stop $IMAGE_NAME 2>/dev/null || true
     docker rm   $IMAGE_NAME 2>/dev/null || true
 
+    echo "--> Removing old images to free disk space..."
+    # Keeps the disk from filling up after repeated deploys
+    docker image prune -f
+
     echo "--> Creating data folder for SQLite..."
     # ~/todo-data on the host maps to /opt/app/data in the container
     mkdir -p ~/todo-data
@@ -74,6 +78,9 @@ ssh -i "$PEM_KEY" -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" bash << EOF
 
     docker ps --filter "name=$IMAGE_NAME"
     docker logs --tail 20 $IMAGE_NAME
+
+    echo "--> Removing uploaded tar file..."
+    rm -f ~/$TAR_FILE
 EOF
 
 echo ""
