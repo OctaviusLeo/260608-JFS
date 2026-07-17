@@ -1,0 +1,142 @@
+/**
+ * Jenkinsfile — CI/CD Pipeline for the Todo App
+ *
+ * This declarative pipeline automates the full build, test, and deployment
+ * lifecycle for the Spring Boot backend. It is triggered automatically by
+ * Jenkins whenever a change is pushed to the configured source control branch.
+ *
+ * Pipeline overview:
+ *   1. Build  — compiles the source code and packages it as an executable JAR
+ *   2. Test   — runs the full automated test suite (unit + integration)
+ *   3. Deploy — builds a Docker image from the JAR and starts a container
+ *
+ * Prerequisites:
+ *   - A Jenkins agent with Java 21, Gradle, and Docker available on PATH
+ *   - The backend Dockerfile must exist at todo-app/backend/Dockerfile
+ *   - Port 8080 must be available on the host when the Deploy stage runs
+ *
+ * Environment variables:
+ *   APP_NAME — logical name of the application; used in log messages
+ */
+pipeline {
+    // Run on any available Jenkins agent (worker node).
+    // Change to 'agent { label "my-label" }' to target a specific node.
+    agent any
+
+    // Global environment variables available to all stages and post-conditions.
+    environment {
+        APP_NAME = 'todo-app'
+    }
+
+    stages {
+
+        /**
+         * Build Stage
+         *
+         * Compiles the Java source code and produces an executable fat JAR
+         * using the Spring Boot Gradle plugin. The 'clean' task ensures no
+         * stale artefacts from a previous run interfere with the new build.
+         *
+         * Output: build/libs/todo-0.0.1-SNAPSHOT.jar
+         */
+        stage('Build') {
+            steps {
+                echo "Starting build process for ${env.APP_NAME}..."
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                // 'bootJar' compiles all sources and packages them into a
+                // self-contained JAR including the embedded Tomcat server.
+                sh './gradlew clean bootJar'
+            }
+        }
+
+        /**
+         * Test Stage
+         *
+         * Executes the full test suite including:
+         *   - Unit tests (TaskServiceTest, etc.)
+         *   - Controller/web layer tests (TaskControllerTest)
+         *   - Integration tests (UserRegistrationTests, UserLoginTests)
+         *   - Security access control tests (SecurityAccessControlTest)
+         *   - REST Assured tests (LoginTest, GetTasksByCurrentUserTest)
+         *
+         * The test profile is activated automatically by application-test.properties,
+         * which swaps SQLite for an in-memory H2 database so tests are isolated
+         * and do not touch the production todo.db file.
+         *
+         * If any test fails this stage is marked as failed and the Deploy stage
+         * is skipped, preventing a broken build from reaching production.
+         */
+        stage('Test') {
+            steps {
+                echo 'Running automated test suites...'
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                // 'clean test' ensures a fresh compilation before running tests,
+                // avoiding false passes caused by cached class files.
+                sh './gradlew clean test'
+            }
+        }
+
+        /**
+         * Deploy Stage
+         *
+         * Builds a Docker image from the backend Dockerfile and starts a
+         * container in detached mode, exposing the application on port 8080.
+         *
+         * Step breakdown:
+         *   docker build  — builds the image using the multi-stage Dockerfile,
+         *                   which extracts Spring Boot JAR layers for efficient
+         *                   layer caching on subsequent builds.
+         *   docker run    — starts a new detached container named
+         *                   'running-spring-container', mapping host port 8080
+         *                   to container port 8080.
+         *
+         * Note: if a container named 'running-spring-container' is already
+         * running from a previous deployment, this step will fail. A pre-step
+         * to stop and remove the old container should be added for idempotent
+         * re-deployments:
+         *   sh 'docker stop running-spring-container || true'
+         *   sh 'docker rm running-spring-container || true'
+         */
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application to production server...'
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
+                // Build the Docker image tagged as 'todo-app'.
+                // The Dockerfile must be in the backend/ subdirectory.
+                sh 'docker build -t todo-app .'
+                // Start the container in detached mode (-d) so the pipeline
+                // step returns immediately rather than blocking indefinitely.
+                sh 'docker run -d -p 8080:8080 --name running-spring-container todo-app'
+            }
+        }
+    }
+
+    /**
+     * Post-build Actions
+     *
+     * These blocks run after all stages complete, regardless of outcome.
+     * They are evaluated in order: always → success or failure.
+     *
+     *   always  — runs unconditionally; used for workspace cleanup or
+     *             archiving test reports.
+     *   success — runs only when every stage passed; used for notifications
+     *             or triggering downstream pipelines.
+     *   failure — runs only when any stage failed; used for alert
+     *             notifications (email, Slack, etc.) so the team is informed.
+     */
+    post {
+        always {
+            // Placeholder for workspace cleanup or publishing test results.
+            // Example: junit 'build/test-results/**/*.xml'
+            echo 'Cleaning up workspace...'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            // Replace this echo with a real notification step in production,
+            // e.g. emailext or slackSend, to alert the team on broken builds.
+            echo 'Pipeline failed. Sending alert notification...'
+        }
+    }
+}
