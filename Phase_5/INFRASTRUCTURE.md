@@ -20,7 +20,7 @@
 | Provider      | AWS EC2                            |
 | Instance name | todo-app-spring-server             |
 | Instance type | t2.micro (free tier eligible)      |
-| OS            | Amazon Linux 2023 (or Ubuntu 24.04 LTS) |
+| OS            | Ubuntu 26.04 LTS                   |
 | Region        | US East (Ohio) us-east-2           |
 | Public IP/DNS | ec2-18-227-169-184.us-east-2.compute.amazonaws.com |
 
@@ -40,14 +40,14 @@
 
 ### Docker Setup on EC2
 
-Install Docker on a fresh Amazon Linux 2023 instance:
+Install Docker on the EC2 Ubuntu instance:
 
 ```bash
-sudo dnf update -y
-sudo dnf install -y docker
+sudo apt update
+sudo apt install -y docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
-sudo usermod -aG docker ec2-user
+sudo usermod -aG docker ubuntu
 # Log out and back in for the group change to take effect
 ```
 
@@ -74,14 +74,13 @@ cd Project1_TheBlind/todo-app/backend
 ./deploy.sh <EC2_USER> <EC2_PUBLIC_DNS> <PATH_TO_PEM_KEY>
 
 # Example (using the actual instance):
-./deploy.sh ec2-user ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
+./deploy.sh ubuntu ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 ```
 
 The script will:
-1. Run `./gradlew bootJar -x test` to build the fat JAR
-2. Build the Docker image locally
-3. Save and `scp` the image to EC2
-4. Load the image on EC2, stop any old container, and start a fresh one
+1. Build the Docker image locally (Gradle compiles inside Docker, no local install needed)
+2. Save and `scp` the image to EC2
+3. Load the image on EC2, stop any old container, and start a fresh one
 
 ---
 
@@ -121,7 +120,7 @@ automatically before starting the container.
 
 To back up the database manually:
 ```bash
-scp -i ../todo-app-key.pem ec2-user@ec2-18-227-169-184.us-east-2.compute.amazonaws.com:~/todo-data/todo.db ./todo-backup.db
+scp -i ../todo-app-key.pem ubuntu@ec2-18-227-169-184.us-east-2.compute.amazonaws.com:~/todo-data/todo.db ./todo-backup.db
 ```
 
 ---
@@ -165,7 +164,7 @@ When code changes and you need to push a new version:
 
 ```bash
 # From the backend directory
-./deploy.sh ec2-user ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
+./deploy.sh ubuntu ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 ```
 
 The script automatically stops the old container and starts a fresh one.
