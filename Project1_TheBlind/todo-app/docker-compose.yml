@@ -1,9 +1,9 @@
 # How to run the app locally with Docker:
 #   1. Copy .env.example to .env and fill in your values
-#   2. Build the backend JAR: cd backend && ./gradlew bootJar
-#   3. From this folder run: docker compose up --build
-#   4. Open http://localhost:4200 in your browser
+#   2. From this folder run: docker compose up --build
+#   3. Open http://localhost:4200 in your browser
 #
+# The Dockerfile compiles the app inside Docker so no local Gradle install is needed.
 # The frontend is served by nginx on port 4200.
 # The backend API is available directly on port 8080.
 # nginx forwards any /api/ requests from the frontend to the backend container.
