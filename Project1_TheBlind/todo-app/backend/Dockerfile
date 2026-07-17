@@ -16,15 +16,16 @@ WORKDIR /opt/app
 COPY --from=builder /app/build/libs/todo-0.0.1-SNAPSHOT.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
-# Stage 3: final runtime image
-FROM eclipse-temurin:21-jre-jammy
+# Stage 3: final runtime image — alpine is much smaller than jammy (~150MB vs ~400MB)
+# This keeps the deployed image small so it fits on the EC2 disk alongside Jenkins
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /opt/app
 
-# gosu is needed to drop from root to the spring user at startup
-RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
+# gosu on Alpine comes from the apk package manager
+RUN apk add --no-cache gosu
 
 # Non-root user for security
-RUN addgroup --system spring && adduser --system spring --ingroup spring \
+RUN addgroup -S spring && adduser -S spring -G spring \
     && mkdir -p /opt/app/data && chown spring:spring /opt/app/data
 
 # Copy layers from least to most likely to change for better cache reuse
@@ -34,7 +35,8 @@ COPY --from=preparer /opt/app/extracted/snapshot-dependencies/ ./
 COPY --from=preparer /opt/app/extracted/application/ ./
 
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Strip Windows line endings so the shebang is valid on Linux, then make executable
+RUN sed -i 's/\r//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 # todo.db writes to /opt/app/data, mount a volume here for persistence
 EXPOSE 8080
