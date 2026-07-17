@@ -1,11 +1,11 @@
 services:
   jenkins-controller:
-    image: jenkins/jenkins:lts-jdk17
+    image: jenkins/jenkins:lts-jdk21
     container_name: jenkins-controller
     privileged: true
     user: root
     ports:
-      - "8080:8080"
+      - "9090:9090"
       - "50000:50000"
     volumes:
       - jenkins_data:/var/jenkins_home
