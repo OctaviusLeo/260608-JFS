@@ -42,6 +42,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Starting build process for ${env.APP_NAME}..."
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
                 // 'bootJar' compiles all sources and packages them into a
                 // self-contained JAR including the embedded Tomcat server.
                 sh './gradlew clean bootJar'
@@ -68,6 +69,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running automated test suites...'
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
                 // 'clean test' ensures a fresh compilation before running tests,
                 // avoiding false passes caused by cached class files.
                 sh './gradlew clean test'
@@ -98,6 +100,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application to production server...'
+                sh 'cd ./Project1_TheBlind/todo-app/backend'
                 // Build the Docker image tagged as 'todo-app'.
                 // The Dockerfile must be in the backend/ subdirectory.
                 sh 'docker build -t todo-app .'
