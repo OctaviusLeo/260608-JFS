@@ -22,7 +22,7 @@
 | Instance type | t2.micro (free tier eligible)      |
 | OS            | Amazon Linux 2023 (or Ubuntu 24.04 LTS) |
 | Region        | US East (Ohio) us-east-2           |
-| Public IP/DNS | ec2-3-138-107-74.us-east-2.compute.amazonaws.com |
+| Public IP/DNS | ec2-18-227-169-184.us-east-2.compute.amazonaws.com |
 
 ---
 
@@ -74,7 +74,7 @@ cd Project1_TheBlind/todo-app/backend
 ./deploy.sh <EC2_USER> <EC2_PUBLIC_DNS> <PATH_TO_PEM_KEY>
 
 # Example (using the actual instance):
-./deploy.sh ec2-user ec2-3-138-107-74.us-east-2.compute.amazonaws.com ../todo-app-key.pem
+./deploy.sh ec2-user ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 ```
 
 The script will:
@@ -121,7 +121,7 @@ automatically before starting the container.
 
 To back up the database manually:
 ```bash
-scp -i ../todo-app-key.pem ec2-user@ec2-3-138-107-74.us-east-2.compute.amazonaws.com:~/todo-data/todo.db ./todo-backup.db
+scp -i ../todo-app-key.pem ec2-user@ec2-18-227-169-184.us-east-2.compute.amazonaws.com:~/todo-data/todo.db ./todo-backup.db
 ```
 
 ---
@@ -133,14 +133,14 @@ After deployment, run this smoke test from your local machine:
 ```bash
 # Register a test user — expect HTTP 201
 curl -s -o /dev/null -w "%{http_code}\n" \
-  http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:8080/api/register \
+  http://ec2-18-227-169-184.us-east-2.compute.amazonaws.com:8080/api/register \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "smoketest", "password": "smoketest123"}'
 
 # Log in — expect HTTP 200 and a JWT in the response body
 curl -s \
-  http://ec2-3-138-107-74.us-east-2.compute.amazonaws.com:8080/api/auth/login \
+  http://ec2-18-227-169-184.us-east-2.compute.amazonaws.com:8080/api/auth/login \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "smoketest", "password": "smoketest123"}'
@@ -152,7 +152,7 @@ curl -s \
 
 Once the EC2 instance is running, share the following:
 
-- **Dev 1 (Frontend / S3):** EC2 DNS is `ec2-3-138-107-74.us-east-2.compute.amazonaws.com` — needed to set `apiUrl` in
+- **Dev 1 (Frontend / S3):** EC2 DNS is `ec2-18-227-169-184.us-east-2.compute.amazonaws.com` — needed to set `apiUrl` in
   `src/environments/environment.prod.ts` before the Angular production build.
 - **Dev 3 (CORS):** EC2 DNS above + S3 URL `http://todo-app-storage-jam98.s3-website-us-east-1.amazonaws.com` — needed to add `CORS_ALLOWED_ORIGINS` to
   the `docker run` command, and the S3 URL to configure `WebConfig.java`.
@@ -165,7 +165,7 @@ When code changes and you need to push a new version:
 
 ```bash
 # From the backend directory
-./deploy.sh ec2-user ec2-3-138-107-74.us-east-2.compute.amazonaws.com ../todo-app-key.pem
+./deploy.sh ec2-user ec2-18-227-169-184.us-east-2.compute.amazonaws.com ../todo-app-key.pem
 ```
 
 The script automatically stops the old container and starts a fresh one.
