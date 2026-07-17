@@ -35,7 +35,8 @@ COPY --from=preparer /opt/app/extracted/snapshot-dependencies/ ./
 COPY --from=preparer /opt/app/extracted/application/ ./
 
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Strip Windows line endings so the shebang is valid on Linux, then make executable
+RUN sed -i 's/\r//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 # todo.db writes to /opt/app/data, mount a volume here for persistence
 EXPOSE 8080
