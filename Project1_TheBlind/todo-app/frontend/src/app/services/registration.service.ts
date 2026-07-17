@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class RegistrationService {
-    private registerAPIURL = `${environment.apiBaseUrl}/api/auth/register`;
+    private registerAPIURL = `${environment.apiBaseUrl}/api/register`;
     private httpClient = inject(HttpClient);
 
     registerUser(user: User): Observable<User> {
